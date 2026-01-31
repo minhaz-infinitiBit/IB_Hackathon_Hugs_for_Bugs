@@ -9,58 +9,97 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppDocumentUploadRouteImport } from './routes/app/document-upload'
+import { Route as AppProjectNameDocumentUploadRouteImport } from './routes/app/$projectName/document-upload'
 
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppIndexRoute = AppIndexRouteImport.update({
-  id: '/app/',
-  path: '/app/',
-  getParentRoute: () => rootRouteImport,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppDocumentUploadRoute = AppDocumentUploadRouteImport.update({
-  id: '/app/document-upload',
-  path: '/app/document-upload',
-  getParentRoute: () => rootRouteImport,
+  id: '/document-upload',
+  path: '/document-upload',
+  getParentRoute: () => AppRoute,
 } as any)
+const AppProjectNameDocumentUploadRoute =
+  AppProjectNameDocumentUploadRouteImport.update({
+    id: '/$projectName/document-upload',
+    path: '/$projectName/document-upload',
+    getParentRoute: () => AppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
   '/app/document-upload': typeof AppDocumentUploadRoute
   '/app/': typeof AppIndexRoute
+  '/app/$projectName/document-upload': typeof AppProjectNameDocumentUploadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app/document-upload': typeof AppDocumentUploadRoute
   '/app': typeof AppIndexRoute
+  '/app/$projectName/document-upload': typeof AppProjectNameDocumentUploadRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
   '/app/document-upload': typeof AppDocumentUploadRoute
   '/app/': typeof AppIndexRoute
+  '/app/$projectName/document-upload': typeof AppProjectNameDocumentUploadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app/document-upload' | '/app/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/app/document-upload'
+    | '/app/'
+    | '/app/$projectName/document-upload'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/app/document-upload' | '/app'
-  id: '__root__' | '/' | '/app/document-upload' | '/app/'
+  to:
+    | '/'
+    | '/app/document-upload'
+    | '/app'
+    | '/app/$projectName/document-upload'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/app/document-upload'
+    | '/app/'
+    | '/app/$projectName/document-upload'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AppDocumentUploadRoute: typeof AppDocumentUploadRoute
-  AppIndexRoute: typeof AppIndexRoute
+  AppRoute: typeof AppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -70,25 +109,45 @@ declare module '@tanstack/react-router' {
     }
     '/app/': {
       id: '/app/'
-      path: '/app'
+      path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AppIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
     }
     '/app/document-upload': {
       id: '/app/document-upload'
-      path: '/app/document-upload'
+      path: '/document-upload'
       fullPath: '/app/document-upload'
       preLoaderRoute: typeof AppDocumentUploadRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/$projectName/document-upload': {
+      id: '/app/$projectName/document-upload'
+      path: '/$projectName/document-upload'
+      fullPath: '/app/$projectName/document-upload'
+      preLoaderRoute: typeof AppProjectNameDocumentUploadRouteImport
+      parentRoute: typeof AppRoute
     }
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+interface AppRouteChildren {
+  AppDocumentUploadRoute: typeof AppDocumentUploadRoute
+  AppIndexRoute: typeof AppIndexRoute
+  AppProjectNameDocumentUploadRoute: typeof AppProjectNameDocumentUploadRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
   AppDocumentUploadRoute: AppDocumentUploadRoute,
   AppIndexRoute: AppIndexRoute,
+  AppProjectNameDocumentUploadRoute: AppProjectNameDocumentUploadRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
