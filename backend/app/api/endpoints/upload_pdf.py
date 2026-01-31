@@ -1,26 +1,26 @@
-from fastapi import APIRouter, UploadFile, HTTPException, Depends, File as FileUpload
+from fastapi import APIRouter, UploadFile, HTTPException, Depends, File as FileUpload, Body
 from sqlalchemy.orm import Session
 from typing import List
 import shutil
 import os
 
 from app.core.database import get_db
-from app.schemas.pdf_upload import PDFUploadResponse, RunResponse
-from app.models.files import Run, File, FileType,RunStatus
+from app.schemas.pdf_upload import PDFUploadResponse, ProjectResponse
+from app.models.files import Project, File, FileType, RunStatus
 
 router = APIRouter()
 
-@router.post("/upload-pdf/{run_id}", response_model=List[PDFUploadResponse])
+@router.post("/upload-pdf/{project_id}", response_model=List[PDFUploadResponse])
 async def upload_pdf(
-    run_id: int,
+    project_id: int,
     files: List[UploadFile] = FileUpload(...),
     db: Session = Depends(get_db)
 ):
-    run = db.query(Run).filter(Run.id == run_id).first()
-    if not run:
-        raise HTTPException(status_code=404, detail="Run not found")
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
 
-    UPLOAD_DIR = f"{os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))}/data/uploads/{run_id}"
+    UPLOAD_DIR = f"{os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))}/data/uploads/{project_id}"
     os.makedirs(UPLOAD_DIR, exist_ok=True)
 
     responses = []
@@ -40,7 +40,7 @@ async def upload_pdf(
 
             db_file = File(
                 file_path=file_location,
-                run_id=run_id,
+                project_id=project_id,
                 filetype=FileType.pdf
             )
             db.add(db_file)
@@ -58,7 +58,7 @@ async def upload_pdf(
                     content_type=file.content_type,
                     message="File uploaded successfully",
                     location=db_file.file_path,
-                    run_id=run_id
+                    project_id=project_id
                 )
             )
     
@@ -77,29 +77,45 @@ async def upload_pdf(
     return responses
 
 
-@router.post("/runs/", response_model=RunResponse)
-async def create_run(db: Session = Depends(get_db)):
-    try:
-        run = Run(status=RunStatus.pending)
-        db.add(run)
-        db.commit()
-        db.refresh(run)
-        return run
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to create run: {str(e)}")
-
-
-@router.get("/runs/{run_id}/files", response_model=List[PDFUploadResponse])
-async def list_run_files(
-    run_id: int,
+@router.post("/projects/", response_model=ProjectResponse)
+async def create_project(
+    project_name: str = Body(..., embed=True),
     db: Session = Depends(get_db)
 ):
-    run = db.query(Run).filter(Run.id == run_id).first()
-    if not run:
-        raise HTTPException(status_code=404, detail="Run not found")
+    try:
+        project = Project(project_name=project_name, status=RunStatus.pending)
+        db.add(project)
+        db.commit()
+        db.refresh(project)
+        return project
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to create project: {str(e)}")
+
+
+@router.get("/projects/", response_model=List[ProjectResponse])
+async def list_projects(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
+    try:
+        projects = db.query(Project).offset(skip).limit(limit).all()
+        return projects
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to list projects: {str(e)}")
+
+
+@router.get("/projects/{project_id}/files", response_model=List[PDFUploadResponse])
+async def list_project_files(
+    project_id: int,
+    db: Session = Depends(get_db)
+):
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
     
-    files = db.query(File).filter(File.run_id == run_id).all()
+    files = db.query(File).filter(File.project_id == project_id).all()
     
     responses = []
     
@@ -114,7 +130,7 @@ async def list_run_files(
                 content_type="application/pdf",
                 message="File retrieved successfully",
                 location=file.file_path,
-                run_id=run_id
+                project_id=project_id
             )
         )
     

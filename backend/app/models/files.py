@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, Enum, ForeignKey, Text, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 from app.core.database import Base
 import enum
 
@@ -53,15 +54,18 @@ class FileType(enum.Enum):
     eps = '.eps'
 
 
-class Run(Base):
-    __tablename__ = "runs"
+class Project(Base):
+    __tablename__ = "projects"
 
     id = Column(Integer, primary_key=True, index=True)
     status = Column(Enum(RunStatus), nullable=False, default=RunStatus.processing)
+    project_name = Column(String, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
-    # Relationships
-    files = relationship("File", back_populates="run")
-    ordering = relationship("Ordering", back_populates="run", uselist=False)
+    # Relationships 
+    files = relationship("File", back_populates="project")
+    ordering = relationship("Ordering", back_populates="project", uselist=False)
 
 
 class File(Base):
@@ -69,22 +73,26 @@ class File(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     file_path = Column(String, nullable=False)
-    run_id = Column(Integer, ForeignKey("runs.id"), nullable=False)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
     filetype = Column(Enum(FileType), nullable=False)
-    category_german = Column(String, nullable=True)
+    category_german = Column(String, nullable=True) # Store JSON as text
     category_english = Column(String, nullable=True)
     summary_json = Column(Text, nullable=True)  # Store JSON as text
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationship
-    run = relationship("Run", back_populates="files")
+    project = relationship("Project", back_populates="files")
 
 
 class Ordering(Base):
     __tablename__ = "ordering"
 
     id = Column(Integer, primary_key=True, index=True)
-    run_id = Column(Integer, ForeignKey("runs.id"), nullable=False, unique=True)
+    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False, unique=True)
     ordering_json = Column(Text, nullable=False)  # Store JSON as text
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationship
-    run = relationship("Run", back_populates="ordering")
+    project = relationship("Project", back_populates="ordering")
