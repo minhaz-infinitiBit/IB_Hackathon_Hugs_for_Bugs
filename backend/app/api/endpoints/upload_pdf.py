@@ -7,6 +7,7 @@ import os
 from app.core.database import get_db
 from app.schemas.pdf_upload import PDFUploadResponse, ProjectResponse
 from app.models.files import Project, File, FileType, RunStatus
+from app.tasks import example_task
 
 router = APIRouter()
 
@@ -137,3 +138,9 @@ async def list_project_files(
     db.commit()
     
     return responses
+
+
+@router.post("/run-task/")
+async def run_task(duration: int):
+    task = example_task.delay(duration)
+    return {"task_id": task.id}
