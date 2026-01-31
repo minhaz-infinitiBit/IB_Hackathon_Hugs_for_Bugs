@@ -69,3 +69,7 @@ temp/
 .build/
 .c9/
 .gemini/
+
+
+./backend/app/data/uploads
+backend/app/data/uploads
