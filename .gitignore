@@ -70,6 +70,30 @@ temp/
 .c9/
 .gemini/
 
+# FastAPI / Uvicorn
+*.pid
+.uvicorn/
 
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff / linting
+.ruff_cache/
+
+# Type stubs
+.pyi
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Secrets
+*.pem
+*.key
+
+# Uploads
 ./backend/app/data/uploads
 backend/app/data/uploads
+uploads/
