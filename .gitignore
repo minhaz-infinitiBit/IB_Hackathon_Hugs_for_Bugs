@@ -97,3 +97,7 @@ celerybeat.pid
 ./backend/app/data/uploads
 backend/app/data/uploads
 uploads/
+
+# extra
+data-preprocess-pipeline-main/
+graphbit_agent/
