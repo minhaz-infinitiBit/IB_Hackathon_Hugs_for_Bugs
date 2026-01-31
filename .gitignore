@@ -73,3 +73,4 @@ temp/
 
 ./backend/app/data/uploads
 backend/app/data/uploads
+sql_app.db
