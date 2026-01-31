@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, FileText, Plus } from "lucide-react";
+import { ArrowLeft, FileUp, Upload } from "lucide-react";
 
-export function DocumentPrepApp() {
+export function DocumentUpload() {
 	return (
 		<div className="min-h-screen bg-gray-950 text-white font-cabinet">
 			{/* Background Grid */}
@@ -16,20 +16,20 @@ export function DocumentPrepApp() {
 			<header className="relative z-10 border-b border-gray-800">
 				<nav className="flex items-center justify-between px-6 py-4 md:px-12 lg:px-20">
 					<div className="flex items-center gap-4">
-						<Link to="/">
+						<Link to="/app">
 							<Button
 								variant="ghost"
 								size="sm"
 								className="text-gray-400 hover:text-cyan-400">
 								<ArrowLeft className="w-4 h-4 mr-2" />
-								Back to Home
+								Back to App
 							</Button>
 						</Link>
 					</div>
 					<div className="flex items-center gap-2">
-						<FileText className="w-5 h-5 text-cyan-400" />
-						<span className="font-mono text-cyan-400">
-							Document Prep App
+						<FileUp className="w-5 h-5 text-cyan-400" />
+						<span className="font-mono text-cyan-400 font-space">
+							Document Upload
 						</span>
 					</div>
 				</nav>
@@ -40,36 +40,29 @@ export function DocumentPrepApp() {
 				<Card className="max-w-2xl w-full bg-gray-900/70 border-2 border-cyan-500/30 backdrop-blur-sm">
 					<CardHeader className="text-center border-b border-gray-800">
 						<CardTitle className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 font-clash">
-							📄 Document Prep App
+							📤 Upload Documents
 						</CardTitle>
 					</CardHeader>
 					<CardContent className="p-8 text-center">
 						<div className="space-y-6">
 							<div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-br from-cyan-500/20 to-purple-500/20 flex items-center justify-center border border-cyan-500/30">
-								<FileText className="w-12 h-12 text-cyan-400" />
+								<Upload className="w-12 h-12 text-cyan-400" />
 							</div>
 
 							<div className="space-y-2">
 								<p className="text-xl text-gray-300">
-									Coming Soon...
+									Target Zone Acquired
 								</p>
-								<p className="text-gray-500 font-mono text-sm">
-									// TODO: Start your first project
+								<p className="text-gray-500 font-mono text-sm font-space">
+									// TODO: Initialize drag-and-drop protocols
 								</p>
 							</div>
-
-							<Link to="/app/document-upload">
-								<Button className="font-bold bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-gray-950 shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:shadow-[0_0_30px_rgba(0,255,255,0.5)] transition-all">
-									<Plus className="w-5 h-5 mr-2" />
-									Add New Project
-								</Button>
-							</Link>
 
 							<div className="pt-4 border-t border-gray-800">
 								<code className="text-xs text-gray-600 font-mono font-space">
 									status:{" "}
 									<span className="text-yellow-400">
-										IN_DEVELOPMENT
+										AWAITING_INPUT
 									</span>
 								</code>
 							</div>

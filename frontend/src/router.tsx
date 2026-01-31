@@ -1,4 +1,5 @@
 import { DocumentPrepApp } from "@/components/features/DocumentPrepApp";
+import { DocumentUpload } from "@/components/features/DocumentUpload";
 import { LandingPage } from "@/components/features/LandingPage";
 import {
 	createRootRoute,
@@ -22,8 +23,14 @@ const appRoute = createRoute({
 	component: DocumentPrepApp,
 });
 
+const uploadRoute = createRoute({
+	getParentRoute: () => rootRoute,
+	path: "/app/document-upload",
+	component: DocumentUpload,
+});
+
 // Create the route tree
-const routeTree = rootRoute.addChildren([indexRoute, appRoute]);
+const routeTree = rootRoute.addChildren([indexRoute, appRoute, uploadRoute]);
 
 // Create the router
 export const router = createRouter({ routeTree });
