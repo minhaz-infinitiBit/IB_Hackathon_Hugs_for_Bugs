@@ -1,3 +1,10 @@
+/**
+ * ProjectsTable Component
+ *
+ * Displays a table of projects using TanStack Table.
+ * Accepts data from parent component (fetched via React Query).
+ */
+
 import {
 	Table,
 	TableBody,
@@ -12,25 +19,66 @@ import {
 	useReactTable,
 	type ColumnDef,
 } from "@tanstack/react-table";
-import React from "react";
 
-// --- Types ---
-export type Project = {
-	project_id: string;
-	project_name: string;
-	created_at?: string;
-};
+// Import the generated type from Orval
+import type { ProjectResponse } from "@/api/model";
 
-// --- Sub-components ---
+// --- Column Definitions ---
+// Defines how each column should render data from the ProjectResponse type
 
-function Header({ table }: { table: any }) {
+export const columns: ColumnDef<ProjectResponse>[] = [
+	{
+		accessorKey: "project_name",
+		header: "Project Name",
+		cell: ({ row }) => (
+			<span className="font-bold text-white">
+				{row.getValue("project_name")}
+			</span>
+		),
+	},
+	{
+		accessorKey: "id",
+		header: "Project ID",
+		cell: ({ row }) => (
+			<span className="font-mono text-xs text-cyan-400">
+				{row.getValue("id")}
+			</span>
+		),
+	},
+	{
+		accessorKey: "status",
+		header: "Status",
+		cell: ({ row }) => {
+			const status = row.getValue("status") as string;
+			// Status badge with color coding
+			return (
+				<span
+					className={`px-2 py-1 rounded-full text-xs font-mono ${
+						status === "active"
+							? "bg-green-900/50 text-green-400"
+							: "bg-gray-800 text-gray-400"
+					}`}>
+					{status}
+				</span>
+			);
+		},
+	},
+];
+
+// --- Sub-components for internal composition ---
+
+function Header({
+	table,
+}: {
+	table: ReturnType<typeof useReactTable<ProjectResponse>>;
+}) {
 	return (
 		<TableHeader>
-			{table.getHeaderGroups().map((headerGroup: any) => (
+			{table.getHeaderGroups().map((headerGroup) => (
 				<TableRow
 					key={headerGroup.id}
 					className="border-gray-800 hover:bg-transparent">
-					{headerGroup.headers.map((header: any) => {
+					{headerGroup.headers.map((header) => {
 						return (
 							<TableHead
 								key={header.id}
@@ -50,16 +98,20 @@ function Header({ table }: { table: any }) {
 	);
 }
 
-function Body({ table, columns }: { table: any; columns: any }) {
+function Body({
+	table,
+}: {
+	table: ReturnType<typeof useReactTable<ProjectResponse>>;
+}) {
 	return (
 		<TableBody>
 			{table.getRowModel().rows?.length ? (
-				table.getRowModel().rows.map((row: any) => (
+				table.getRowModel().rows.map((row) => (
 					<TableRow
 						key={row.id}
 						data-state={row.getIsSelected() && "selected"}
 						className="border-gray-800 hover:bg-gray-900/50 transition-colors">
-						{row.getVisibleCells().map((cell: any) => (
+						{row.getVisibleCells().map((cell) => (
 							<TableCell
 								key={cell.id}
 								className="text-gray-300 font-cabinet">
@@ -76,7 +128,7 @@ function Body({ table, columns }: { table: any; columns: any }) {
 					<TableCell
 						colSpan={columns.length}
 						className="h-24 text-center text-gray-500 font-mono">
-						No projects found.
+						No projects found. Create your first project above.
 					</TableCell>
 				</TableRow>
 			)}
@@ -84,39 +136,15 @@ function Body({ table, columns }: { table: any; columns: any }) {
 	);
 }
 
-// --- Root Component ---
+// --- Main Component ---
 
 interface ProjectsTableProps {
-	data: Project[];
+	/** Array of projects from useListProjectsFilesProjectsGet hook */
+	data: ProjectResponse[];
 }
 
-export const columns: ColumnDef<Project>[] = [
-	{
-		accessorKey: "project_name",
-		header: "Project Name",
-		cell: ({ row }) => (
-			<span className="font-bold text-white">
-				{row.getValue("project_name")}
-			</span>
-		),
-	},
-	{
-		accessorKey: "project_id",
-		header: "Project ID",
-		cell: ({ row }) => (
-			<span className="font-mono text-xs text-cyan-400">
-				{row.getValue("project_id")}
-			</span>
-		),
-	},
-	{
-		accessorKey: "created_at",
-		header: "Created At",
-		cell: "2024-10-24", // Placeholder for now as per simplicity
-	},
-];
-
 export function ProjectsTable({ data }: ProjectsTableProps) {
+	// Initialize TanStack Table with project data and column definitions
 	const table = useReactTable({
 		data,
 		columns,
@@ -127,29 +155,8 @@ export function ProjectsTable({ data }: ProjectsTableProps) {
 		<div className="rounded-md border border-gray-800 bg-gray-950/50 backdrop-blur-sm">
 			<Table>
 				<Header table={table} />
-				<Body
-					table={table}
-					columns={columns}
-				/>
+				<Body table={table} />
 			</Table>
 		</div>
 	);
 }
-
-// Attach sub-components if needed externally, but here we composed them internally for the 'ProjectsTable' export.
-// If we wanted true 'Compound Component' usage from outside, we would export Root, Header, Body separately
-// and let the parent compose them. The plan described "Root compound component", but usually tables are easier
-// to use as a single component that takes data.
-// However, to stick to the "Compound Component structure" request strictly:
-
-ProjectsTable.Root = function ProjectsTableRoot({
-	children,
-}: {
-	children: React.ReactNode;
-}) {
-	return (
-		<div className="rounded-md border border-gray-800 bg-gray-950/50 backdrop-blur-sm">
-			<Table>{children}</Table>
-		</div>
-	);
-};
