@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Braces, Bug, Code, Cpu, Terminal, Zap } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Braces, Bug, Code, Cpu, FileText } from "lucide-react";
 
 const teamMembers = [
 	{ name: "Rupak", role: "Code Wizard", emoji: "🧙‍♂️" },
-	{ name: "Minhaz", role: "Bug Hunter", emoji: "🎯" },
+	{ name: "Minhaz", role: "Neta The Leader", emoji: "🎯" },
 	{ name: "Saddat", role: "Stack Slayer", emoji: "⚔️" },
 ];
 
@@ -28,23 +29,11 @@ export function LandingPage() {
 			<header className="relative z-10">
 				<nav className="flex items-center justify-between px-6 py-6 md:px-12 lg:px-20">
 					<div className="flex items-center gap-3">
-						<div className="relative">
-							<Bug className="w-10 h-10 text-cyan-400 drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]" />
-							<div className="absolute inset-0 animate-ping">
-								<Bug className="w-10 h-10 text-cyan-400/30" />
-							</div>
-						</div>
-						<span className="text-2xl font-black tracking-tight">
-							<span className="text-cyan-400 drop-shadow-[0_0_10px_rgba(0,255,255,0.5)]">
-								HUGS
-							</span>
-							<span className="text-pink-500 drop-shadow-[0_0_10px_rgba(255,0,255,0.5)]">
-								4
-							</span>
-							<span className="text-purple-400 drop-shadow-[0_0_10px_rgba(128,0,255,0.5)]">
-								BUGS
-							</span>
-						</span>
+						<img
+							src="/HFB_IB2.svg"
+							alt="Hugs for Bugs Logo"
+							className="absolute animate-pulse w-12 h-12 drop-shadow-[0_0_10px_rgba(0,255,255,0.8)]"
+						/>
 					</div>
 					<div className="px-4 py-2 border border-cyan-500/50 rounded-lg bg-cyan-500/10 backdrop-blur-sm">
 						<span className="text-cyan-400 font-mono text-sm">
@@ -90,20 +79,15 @@ export function LandingPage() {
 					</p>
 
 					<div className="flex flex-col sm:flex-row gap-4 mb-16">
-						<Button
-							size="lg"
-							className="relative group px-8 py-6 text-lg font-bold bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-gray-950 rounded-lg shadow-[0_0_30px_rgba(0,255,255,0.3)] hover:shadow-[0_0_50px_rgba(0,255,255,0.5)] transition-all duration-300">
-							<Zap className="w-5 h-5 mr-2" />
-							DEPLOY.exe
-							<div className="absolute inset-0 rounded-lg bg-gradient-to-r from-cyan-400 to-purple-400 opacity-0 group-hover:opacity-20 transition-opacity" />
-						</Button>
-						<Button
-							size="lg"
-							variant="outline"
-							className="px-8 py-6 text-lg font-bold border-2 border-pink-500/50 text-pink-400 hover:bg-pink-500/10 hover:border-pink-400 rounded-lg transition-all duration-300">
-							<Terminal className="w-5 h-5 mr-2" />
-							./view_code
-						</Button>
+						<Link to="/app">
+							<Button
+								size="lg"
+								className="relative group px-8 py-6 text-lg font-bold bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-gray-950 rounded-lg shadow-[0_0_30px_rgba(0,255,255,0.3)] hover:shadow-[0_0_50px_rgba(0,255,255,0.5)] transition-all duration-300">
+								<FileText className="w-5 h-5 mr-2" />
+								Start Document Prep. App
+								<div className="absolute inset-0 rounded-lg bg-gradient-to-r from-cyan-400 to-purple-400 opacity-0 group-hover:opacity-20 transition-opacity" />
+							</Button>
+						</Link>
 					</div>
 
 					{/* Stats Bar */}
