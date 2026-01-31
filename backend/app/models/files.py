@@ -5,6 +5,7 @@ import enum
 
 
 class RunStatus(enum.Enum):
+    pending = "pending"
     processing = "processing"
     in_agent_execution = "in_agent_execution"
     finished_processing = "finished_processing"
