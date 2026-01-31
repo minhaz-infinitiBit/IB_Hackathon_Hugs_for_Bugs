@@ -5,7 +5,7 @@ import { ArrowLeft, FileText } from "lucide-react";
 
 export function DocumentPrepApp() {
 	return (
-		<div className="min-h-screen bg-gray-950 text-white">
+		<div className="min-h-screen bg-gray-950 text-white font-cabinet">
 			{/* Background Grid */}
 			<div className="fixed inset-0 pointer-events-none">
 				<div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.03)_1px,transparent_1px)] bg-[size:50px_50px]" />
@@ -39,7 +39,7 @@ export function DocumentPrepApp() {
 			<main className="relative z-10 flex items-center justify-center min-h-[calc(100vh-80px)] px-6">
 				<Card className="max-w-2xl w-full bg-gray-900/70 border-2 border-cyan-500/30 backdrop-blur-sm">
 					<CardHeader className="text-center border-b border-gray-800">
-						<CardTitle className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
+						<CardTitle className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 font-clash">
 							📄 Document Prep App
 						</CardTitle>
 					</CardHeader>
@@ -60,7 +60,7 @@ export function DocumentPrepApp() {
 							</div>
 
 							<div className="pt-4 border-t border-gray-800">
-								<code className="text-xs text-gray-600 font-mono">
+								<code className="text-xs text-gray-600 font-mono font-space">
 									status:{" "}
 									<span className="text-yellow-400">
 										IN_DEVELOPMENT

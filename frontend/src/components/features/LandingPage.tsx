@@ -11,7 +11,7 @@ const teamMembers = [
 
 export function LandingPage() {
 	return (
-		<div className="min-h-screen bg-gray-950 text-white overflow-hidden">
+		<div className="min-h-screen bg-gray-950 text-white overflow-hidden font-cabinet">
 			{/* Cyberpunk Grid Background */}
 			<div className="fixed inset-0 pointer-events-none">
 				<div className="absolute inset-0 bg-[linear-gradient(rgba(0,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,255,255,0.03)_1px,transparent_1px)] bg-[size:50px_50px]" />
@@ -57,7 +57,7 @@ export function LandingPage() {
 						</div>
 					</div>
 
-					<h1 className="text-6xl md:text-8xl lg:text-9xl font-black mb-6 leading-none">
+					<h1 className="text-6xl md:text-8xl lg:text-9xl font-black mb-6 leading-none font-clash">
 						<span className="block text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-500 drop-shadow-[0_0_30px_rgba(0,255,255,0.3)]">
 							HUGS
 						</span>
@@ -91,7 +91,7 @@ export function LandingPage() {
 					</div>
 
 					{/* Stats Bar */}
-					<div className="flex flex-wrap justify-center gap-8 px-8 py-4 bg-gray-900/50 border border-cyan-500/20 rounded-xl backdrop-blur-sm">
+					<div className="flex flex-wrap justify-center gap-8 px-8 py-4 bg-gray-900/50 border border-cyan-500/20 rounded-xl backdrop-blur-sm font-space">
 						<div className="text-center">
 							<div className="text-3xl font-black text-cyan-400">
 								∞
