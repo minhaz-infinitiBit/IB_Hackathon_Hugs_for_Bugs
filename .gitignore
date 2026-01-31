@@ -70,7 +70,78 @@ temp/
 .c9/
 .gemini/
 
+# FastAPI / Uvicorn
+*.pid
+.uvicorn/
 
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff / linting
+.ruff_cache/
+
+# Type stubs
+.pyi
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Secrets
+*.pem
+*.key
+
+# Uploads
 ./backend/app/data/uploads
 backend/app/data/uploads
 sql_app.db
+uploads/
+
+# ================================
+# Node.js / Frontend
+# ================================
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+frontend/dist/
+frontend/build/
+*.tsbuildinfo
+
+# Vite
+frontend/.vite/
+*.local
+
+# Testing
+coverage/
+.nyc_output/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# TypeScript
+*.tsbuildinfo
+
+# Storybook
+storybook-static/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
