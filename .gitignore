@@ -101,3 +101,8 @@ uploads/
 # extra
 data-preprocess-pipeline-main/
 graphbit_agent/
+project_desctiption.txt
+
+files/
+backend/output/
+graphbit_agent/

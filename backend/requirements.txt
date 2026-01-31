@@ -2,3 +2,15 @@ fastapi
 uvicorn
 graphbit
 python-multipart
+docling
+Pillow
+openai
+python-dotenv
+pandas
+pyxlsb
+extract-msg
+tabulate
+mem0ai[qdrant]
+qdrant-client
+azure-identity
+azure-core
