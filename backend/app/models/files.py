@@ -66,7 +66,6 @@ class Project(Base):
 
     # Relationships 
     files = relationship("File", back_populates="project")
-    ordering = relationship("Ordering", back_populates="project", uselist=False)
 
 
 class File(Base):
@@ -76,24 +75,26 @@ class File(Base):
     file_path = Column(String, nullable=False)
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
     filetype = Column(Enum(FileType), nullable=False)
-    category_german = Column(String, nullable=True) # Store JSON as text
-    category_english = Column(String, nullable=True)
-    summary_json = Column(Text, nullable=True)  # Store JSON as text
+    
+    # Preprocessing fields
+    extracted_content = Column(Text, nullable=True)  # Raw extracted content
+    structured_content = Column(Text, nullable=True)  # LLM-structured content
+    summary = Column(Text, nullable=True)  # LLM-generated summary
+    keywords = Column(Text, nullable=True)  # JSON array of keywords
+    document_type = Column(String, nullable=True)  # LLM-identified document type
+    key_entities = Column(Text, nullable=True)  # JSON object of key entities
+    llm_output_file = Column(String, nullable=True)  # Path to LLM-processed output
+    output_folder = Column(String, nullable=True)  # Path to output folder for this file
+    
+    # Classification fields
+    category_id = Column(Integer, nullable=True)  # Category ID (1-20)
+    category_german = Column(String, nullable=True)  # German category name
+    category_english = Column(String, nullable=True)  # English category name
+    classification_confidence = Column(String, nullable=True)  # Confidence score
+    classification_reasoning = Column(Text, nullable=True)  # Reasoning for classification
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationship
     project = relationship("Project", back_populates="files")
-
-
-class Ordering(Base):
-    __tablename__ = "ordering"
-
-    id = Column(Integer, primary_key=True, index=True)
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=False, unique=True)
-    ordering_json = Column(Text, nullable=False)  # Store JSON as text
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-
-    # Relationship
-    project = relationship("Project", back_populates="ordering")

@@ -3,7 +3,7 @@ Document Classification Service
 
 This service handles document classification:
 1. Validates the classification workflow
-2. Loads preprocessed documents
+2. Accepts preprocessed documents from memory (list of document dicts)
 3. Classifies documents into 20 tax categories
 4. Returns structured classification results
 
@@ -14,10 +14,10 @@ Usage:
     
     # Validate the workflow first
     if service.validate():
-        result = service.classify_documents()
+        result = service.classify_documents(documents_list)
     
-    # Or use the convenience method
-    result = service.run()
+    # Or use the convenience method with documents
+    result = service.run(documents_list)
 """
 
 import logging
@@ -67,9 +67,9 @@ class ClassificationService:
     for the application layer to classify documents.
     
     Example:
-        >>> service = ClassificationService(output_dir="/path/to/preprocessed")
+        >>> service = ClassificationService()
         >>> if service.validate():
-        ...     result = service.classify_documents()
+        ...     result = service.classify_documents(documents_list)
         ...     if result.success:
         ...         print(f"Classified {result.documents_classified} documents")
     """
@@ -83,7 +83,7 @@ class ClassificationService:
         Initialize the ClassificationService.
         
         Args:
-            output_dir: Directory containing preprocessed documents.
+            output_dir: Directory for saving classification outputs.
                        Defaults to backend/output
             use_memory: Whether to use mem0 for classification history
         """
@@ -138,18 +138,29 @@ class ClassificationService:
     
     def classify_documents(
         self,
-        documents: List[Dict] = None
+        documents: List[Dict]
     ) -> ClassificationServiceResult:
         """
         Classify documents into tax categories.
         
         Args:
-            documents: Optional list of document data. If None, loads from output_dir.
+            documents: List of document data dictionaries containing:
+                - file_id: Database file ID
+                - file_name: Original file name
+                - summary: LLM-generated summary
+                - keywords: List of keywords
+                - document_type: LLM-identified document type
+                - key_entities: Dictionary of extracted entities
+                - structured_content: LLM-structured content (optional)
             
         Returns:
             ClassificationServiceResult with classification results
         """
         result = ClassificationServiceResult()
+        
+        if not documents:
+            result.error_message = "No documents provided for classification"
+            return result
         
         try:
             # Validate if not done
@@ -161,9 +172,9 @@ class ClassificationService:
             else:
                 result.validated = True
             
-            # Get agent and execute
+            # Get agent and execute with provided documents
             agent = self._get_agent()
-            agent_result = agent.execute()
+            agent_result = agent.execute_with_documents(documents)
             
             # Map agent result to service result
             result.success = agent_result.success
@@ -180,15 +191,23 @@ class ClassificationService:
             result.error_message = str(e)
             return result
     
-    def run(self) -> ClassificationServiceResult:
+    def run(self, documents: List[Dict] = None) -> ClassificationServiceResult:
         """
         Run the full classification workflow (validate + classify).
         
         This is a convenience method that combines validation and classification.
         
+        Args:
+            documents: List of document data dictionaries to classify
+        
         Returns:
             ClassificationServiceResult with classification results
         """
+        if not documents:
+            result = ClassificationServiceResult()
+            result.error_message = "No documents provided for classification"
+            return result
+            
         # Validate first
         if not self.validate():
             result = ClassificationServiceResult()
@@ -196,7 +215,7 @@ class ClassificationService:
             return result
         
         # Then classify
-        return self.classify_documents()
+        return self.classify_documents(documents)
     
     def get_classification_summary(self) -> Dict[str, Any]:
         """
@@ -233,18 +252,19 @@ class ClassificationService:
         }
 
 
-def run_classification_service(output_dir: str = None) -> Dict[str, Any]:
+def run_classification_service(documents: List[Dict], output_dir: str = None) -> Dict[str, Any]:
     """
     Convenience function to run document classification service.
     
     Args:
-        output_dir: Directory containing preprocessed documents
+        documents: List of document data dictionaries to classify
+        output_dir: Directory for saving classification outputs
         
     Returns:
         Classification results as dictionary
     """
     service = ClassificationService(output_dir=output_dir)
-    result = service.run()
+    result = service.run(documents)
     return result.to_dict()
 
 
@@ -252,17 +272,9 @@ def run_classification_service(output_dir: str = None) -> Dict[str, Any]:
 if __name__ == "__main__":
     import sys
     
-    output_dir = sys.argv[1] if len(sys.argv) > 1 else None
-    result = run_classification_service(output_dir)
-    
-    print("\n" + "="*50)
-    print("Classification Service Result")
-    print("="*50)
-    print(f"Success: {result['success']}")
-    print(f"Validated: {result['validated']}")
-    print(f"Documents Processed: {result['documents_processed']}")
-    print(f"Documents Classified: {result['documents_classified']}")
-    if result['output_file']:
-        print(f"Output File: {result['output_file']}")
-    if result['error_message']:
-        print(f"Error: {result['error_message']}")
+    # For testing, this would require documents to be passed
+    print("ClassificationService - Run via tasks.py or provide documents programmatically")
+    print("Example usage:")
+    print("  from app.services.classification_service import ClassificationService")
+    print("  service = ClassificationService()")
+    print("  result = service.classify_documents(documents_list)")

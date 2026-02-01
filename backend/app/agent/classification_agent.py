@@ -483,6 +483,9 @@ class ClassificationAgent:
     def execute(self) -> ClassificationResult:
         """
         Execute the full classification workflow.
+        
+        DEPRECATED: Use execute_with_documents() for database-driven flow.
+        This method loads documents from output_dir for backward compatibility.
 
         Returns:
             ClassificationResult with execution results
@@ -515,6 +518,63 @@ class ClassificationAgent:
                 return result
 
             # Step 4: Save results
+            output_file = self.save_results(classifications)
+            result.output_file = output_file
+            result.success = True
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Workflow execution error: {e}")
+            result.error = str(e)
+            return result
+
+    def execute_with_documents(self, documents: List[Dict]) -> ClassificationResult:
+        """
+        Execute classification workflow with provided documents list.
+        
+        This method is the primary entry point for database-driven classification flow.
+        Documents are passed in-memory from the preprocessing step.
+
+        Args:
+            documents: List of document dictionaries containing:
+                - file_id: Database file ID
+                - file_name: Original file name
+                - summary: LLM-generated summary
+                - keywords: List of keywords
+                - document_type: LLM-identified document type
+                - key_entities: Dictionary of extracted entities
+                - structured_content: (optional) LLM-structured content
+
+        Returns:
+            ClassificationResult with execution results
+        """
+        logger.info(f"Starting classification for {len(documents)} documents...")
+        result = ClassificationResult()
+
+        try:
+            # Step 1: Validate workflow if not done
+            if not self._workflow_validated:
+                if not self.workflow_validate():
+                    result.error = "Workflow validation failed"
+                    return result
+
+            result.documents_processed = len(documents)
+
+            if not documents:
+                result.error = "No documents provided to classify"
+                return result
+
+            # Step 2: Classify documents directly
+            classifications = self.classify_documents(documents)
+            result.documents_classified = len(classifications)
+            result.classifications = classifications
+
+            if not classifications:
+                result.error = "Classification failed - no results"
+                return result
+
+            # Step 3: Save results to file (optional, for reference)
             output_file = self.save_results(classifications)
             result.output_file = output_file
             result.success = True

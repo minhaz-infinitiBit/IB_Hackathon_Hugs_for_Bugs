@@ -1,7 +1,6 @@
-from .files import File,Project, Ordering
+from .files import File, Project
 
 __all__ = [
     "File",
     "Project",
-    "Ordering",
 ]

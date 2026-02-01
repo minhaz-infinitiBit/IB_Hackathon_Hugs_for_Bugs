@@ -1,8 +1,9 @@
 from fastapi import APIRouter, UploadFile, HTTPException, Depends, File as FileUpload, Body
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 import shutil
 import os
+import json
 
 from app.core.database import get_db
 from app.schemas.pdf_upload import PDFUploadResponse, ProjectResponse
@@ -148,4 +149,123 @@ async def process_project(
         return {"task_id": task.id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process project: {str(e)}")
+
+
+@router.get("/projects/{project_id}/ordering")
+async def get_project_ordering(
+    project_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get the classification ordering results for a project.
+    Returns the documents organized by category after classification is complete.
+    Built dynamically from File records.
+    """
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Get all classified files for this project
+    files = db.query(File).filter(
+        File.project_id == project_id,
+        File.category_id.isnot(None)
+    ).all()
+    
+    if not files:
+        return {
+            "project_id": project_id,
+            "status": project.status.value,
+            "message": "No classification results available yet",
+            "ordering": None
+        }
+    
+    # Build ordering data from File records
+    by_category = {}
+    for file in files:
+        cat_id = file.category_id
+        if cat_id not in by_category:
+            by_category[cat_id] = {
+                "category_id": cat_id,
+                "category_name": file.category_german or "",
+                "category_english": file.category_english or "",
+                "files": []
+            }
+        by_category[cat_id]["files"].append({
+            "file_id": file.id,
+            "file_name": os.path.basename(file.file_path),
+            "confidence": file.classification_confidence,
+            "reasoning": file.classification_reasoning
+        })
+    
+    # Sort by category ID
+    ordered_files = []
+    categories = {}
+    for cat_id in sorted(by_category.keys()):
+        categories[str(cat_id)] = by_category[cat_id]
+        for file_info in by_category[cat_id]["files"]:
+            ordered_files.append({
+                "file_id": file_info["file_id"],
+                "file_name": file_info["file_name"],
+                "category_id": cat_id,
+                "category_name": by_category[cat_id]["category_name"],
+                "category_english": by_category[cat_id]["category_english"]
+            })
+    
+    ordering_data = {
+        "project_id": project_id,
+        "total_documents": len(files),
+        "categories": categories,
+        "ordered_files": ordered_files
+    }
+    
+    return {
+        "project_id": project_id,
+        "status": project.status.value,
+        "ordering": ordering_data
+    }
+
+
+@router.get("/projects/{project_id}/classifications")
+async def get_project_classifications(
+    project_id: int,
+    category_id: Optional[int] = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Get classification results for files in a project.
+    Optionally filter by category_id.
+    """
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    query = db.query(File).filter(File.project_id == project_id)
+    
+    if category_id is not None:
+        query = query.filter(File.category_id == category_id)
+    
+    files = query.all()
+    
+    results = []
+    for file in files:
+        results.append({
+            "file_id": file.id,
+            "file_name": os.path.basename(file.file_path),
+            "file_path": file.file_path,
+            "category_id": file.category_id,
+            "category_german": file.category_german,
+            "category_english": file.category_english,
+            "classification_confidence": file.classification_confidence,
+            "classification_reasoning": file.classification_reasoning,
+            "summary": file.summary,
+            "document_type": file.document_type,
+            "keywords": json.loads(file.keywords) if file.keywords else []
+        })
+    
+    return {
+        "project_id": project_id,
+        "status": project.status.value,
+        "total_files": len(results),
+        "files": results
+    }
     
