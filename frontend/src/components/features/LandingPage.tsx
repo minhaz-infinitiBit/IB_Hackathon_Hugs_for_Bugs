@@ -4,9 +4,9 @@ import { Link } from "@tanstack/react-router";
 import { Braces, Bug, Code, Cpu, FileText } from "lucide-react";
 
 const teamMembers = [
-	{ name: "Rupak", role: "Code Wizard", emoji: "🧙‍♂️" },
-	{ name: "Minhaz", role: "Neta The Leader", emoji: "🎯" },
-	{ name: "Saddat", role: "Stack Slayer", emoji: "⚔️" },
+	{ name: "Rupak", role: "রুপোকোনুজোন", emoji: "🧙‍♂️" },
+	{ name: "Minhaz", role: "নেতা", emoji: "🎯" },
+	{ name: "Saddat", role: "পাতি নেতা", emoji: "⚔️" },
 ];
 
 export function LandingPage() {
@@ -171,7 +171,7 @@ export function LandingPage() {
 											{member.name}
 										</h3>
 										<p className="text-gray-500 font-mono text-sm">
-											{"<"}
+											{"< "}
 											{member.role}
 											{" />"}
 										</p>
@@ -268,29 +268,29 @@ export function LandingPage() {
 						))}
 					</div>
 				</section>
-			</main>
 
-			{/* Footer */}
-			<footer className="relative z-10 px-6 py-8 border-t border-gray-800">
-				<div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-					<div className="flex items-center gap-2">
-						<Bug className="w-5 h-5 text-cyan-400" />
-						<span className="font-mono text-gray-500">
-							./hugs_for_bugs
-						</span>
+				{/* Footer */}
+				<footer className="relative z-10 px-6 py-8 border-t border-gray-800">
+					<div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+						<div className="flex items-center gap-2">
+							<Bug className="w-5 h-5 text-cyan-400" />
+							<span className="font-mono text-gray-500">
+								./hugs_for_bugs
+							</span>
+						</div>
+						<div className="flex items-center gap-2 text-gray-600 font-mono text-sm">
+							<Code className="w-4 h-4" />
+							<span>HACKATHON_2026</span>
+							<span className="text-pink-500">♥</span>
+							<Cpu className="w-4 h-4" />
+						</div>
+						<p className="text-gray-600 font-mono text-sm">
+							Made with <span className="text-pink-500">💜</span>{" "}
+							and <span className="text-cyan-400">bugs</span>
+						</p>
 					</div>
-					<div className="flex items-center gap-2 text-gray-600 font-mono text-sm">
-						<Code className="w-4 h-4" />
-						<span>HACKATHON_2026</span>
-						<span className="text-pink-500">♥</span>
-						<Cpu className="w-4 h-4" />
-					</div>
-					<p className="text-gray-600 font-mono text-sm">
-						Made with <span className="text-pink-500">💜</span> and{" "}
-						<span className="text-cyan-400">bugs</span>
-					</p>
-				</div>
-			</footer>
+				</footer>
+			</main>
 		</div>
 	);
 }

@@ -1,41 +1,10 @@
-import { DocumentPrepApp } from "@/components/features/DocumentPrepApp";
-import { DocumentUpload } from "@/components/features/DocumentUpload";
-import { LandingPage } from "@/components/features/LandingPage";
-import {
-	createRootRoute,
-	createRoute,
-	createRouter,
-} from "@tanstack/react-router";
+import { createRouter } from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen";
 
-// Create the root route
-const rootRoute = createRootRoute();
-
-// Create child routes
-const indexRoute = createRoute({
-	getParentRoute: () => rootRoute,
-	path: "/",
-	component: LandingPage,
-});
-
-const appRoute = createRoute({
-	getParentRoute: () => rootRoute,
-	path: "/app",
-	component: DocumentPrepApp,
-});
-
-const uploadRoute = createRoute({
-	getParentRoute: () => rootRoute,
-	path: "/app/document-upload",
-	component: DocumentUpload,
-});
-
-// Create the route tree
-const routeTree = rootRoute.addChildren([indexRoute, appRoute, uploadRoute]);
-
-// Create the router
+// Create the router instance
 export const router = createRouter({ routeTree });
 
-// Register router types
+// Register the router for type safety
 declare module "@tanstack/react-router" {
 	interface Register {
 		router: typeof router;
