@@ -20,6 +20,8 @@ source venv/bin/activate
 # Windows
 python -m venv venv
 venv\Scripts\activate
+
+celery -A app.celery_worker:celery_app worker --loglevel=info --pool=solo
 ```
 
 ### 3. Install Dependencies
@@ -40,7 +42,7 @@ pip install -r requirements.txt
 cd backend
 
 # Run the server
-uvicorn app.main:app --reload
+uvicorn app.main:app --reload --port 8000
 ```
 
 The server will start at `http://0.0.0.0:8000`.

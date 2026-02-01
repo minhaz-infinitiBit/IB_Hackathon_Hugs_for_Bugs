@@ -1,8 +1,14 @@
 import uvicorn
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
+
+# Ensure data directories exist
+os.makedirs("app/data/uploads", exist_ok=True)
+os.makedirs("app/data/merged", exist_ok=True)
 
 # Allow frontend to connect
 app.add_middleware(
@@ -12,6 +18,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount("/static/uploads", StaticFiles(directory="app/data/uploads"), name="uploads")
+app.mount("/static/merged", StaticFiles(directory="app/data/merged"), name="merged")
 
 from app.api.api import api_router
 app.include_router(api_router)
