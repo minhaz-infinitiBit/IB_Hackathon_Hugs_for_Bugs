@@ -98,6 +98,17 @@ celerybeat.pid
 backend/app/data/uploads
 uploads/
 
+# extra
+data-preprocess-pipeline-main/
+graphbit_agent/
+project_desctiption.txt
+
+files/
+backend/output/
+graphbit_agent/
+sql_app.db
+uploads/
+
 # ================================
 # Node.js / Frontend
 # ================================
