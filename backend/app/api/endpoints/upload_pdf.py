@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, HTTPException, Depends, File as FileUpload, Body
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import shutil
@@ -268,4 +269,120 @@ async def get_project_classifications(
         "total_files": len(results),
         "files": results
     }
+
+
+@router.get("/projects/{project_id}/grouped-by-category")
+async def get_project_grouped_by_category(
+    project_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get all files for a specific project, grouped by their German category.
+    Enforces that the project must be in 'finished_processing' status.
+    """
+    try:
+        # Check if project exists and is finished
+        project = db.query(Project).filter(Project.id == project_id).first()
+        if not project:
+            raise HTTPException(status_code=404, detail="Project not found")
+        
+        if project.status != RunStatus.finished_processing:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Project is not finished processing. Current status: {project.status.value}"
+            )
+
+        # Query files for this project
+        files = db.query(File).filter(File.project_id == project_id).all()
+        
+        if not files:
+            return {
+                "project_id": project_id,
+                "project_name": project.project_name,
+                "message": "No files found for this project",
+                "grouped_files": {}
+            }
+        
+        # Group files by category_german
+        grouped_dict = {}
+        for file in files:
+            category = file.category_german or "Uncategorized"
+            if category not in grouped_dict:
+                grouped_dict[category] = []
+            
+            grouped_dict[category].append({
+                "file_id": file.id,
+                "file_name": os.path.basename(file.file_path),
+                "file_path": file.file_path,
+                "confidence": file.classification_confidence,
+                "reasoning": file.classification_reasoning
+            })
+        
+        # Convert to list of category objects
+        grouped_list = []
+        for category, category_files in grouped_dict.items():
+            grouped_list.append({
+                "category": category,
+                "files": category_files
+            })
+        
+        return {
+            "project_id": project_id,
+            "project_name": project.project_name,
+            "total_files": len(files),
+            "total_categories": len(grouped_list),
+            "grouped_files": grouped_list
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve grouped files: {str(e)}")
+
+
+@router.get("/preview")
+async def preview_file(
+    file_path: str
+):
+    """
+    Get file content for previewing.
+    Supports images, PDFs, Excel, etc.
+    Includes security check to ensure file is within the data directory.
+    """
+    # Security: Normalize path and check if it's within the allowed base directory
+    try:
+        abs_file_path = os.path.abspath(file_path)
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        allowed_dir = os.path.join(base_dir, "data", "uploads")
+        
+        # Also allow output directory for processed files
+        output_dir = os.path.join(base_dir, "output")
+
+        if not (abs_file_path.startswith(allowed_dir) or abs_file_path.startswith(output_dir)):
+            raise HTTPException(status_code=403, detail="Access to the specified file is restricted")
+
+        if not os.path.exists(abs_file_path):
+            raise HTTPException(status_code=404, detail="File not found")
+
+        # Determine media type based on extension
+        ext = os.path.splitext(abs_file_path)[1].lower()
+        media_types = {
+            ".pdf": "application/pdf",
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ".xls": "application/vnd.ms-excel",
+            ".csv": "text/csv",
+            ".txt": "text/plain",
+            ".md": "text/markdown"
+        }
+        
+        media_type = media_types.get(ext, "application/octet-stream")
+        
+        return FileResponse(path=abs_file_path, media_type=media_type)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve file: {str(e)}")
     
