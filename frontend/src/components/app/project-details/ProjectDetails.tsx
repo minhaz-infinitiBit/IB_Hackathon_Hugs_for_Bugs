@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { MessageSquare, Upload } from "lucide-react";
 import { createContext, useContext, useState, type ReactNode } from "react";
+import { ReviewFeedbackModal } from "./ReviewFeedbackModal";
 import { UploadMoreModal } from "./UploadMoreModal";
 
 interface ProjectDetailsContextValue {
@@ -35,9 +36,18 @@ export function ProjectDetails({ projectId, children }: ProjectDetailsProps) {
 }
 
 // Sub-components
-ProjectDetails.Header = function Header() {
+ProjectDetails.Header = function Header({
+	onReclassifyStart,
+}: {
+	onReclassifyStart?: () => void;
+}) {
 	const { projectId } = useProjectDetailsContext();
 	const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+	const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+
+	const handleReviewSubmitStart = () => {
+		onReclassifyStart?.();
+	};
 
 	return (
 		<>
@@ -51,18 +61,33 @@ ProjectDetails.Header = function Header() {
 						<span className="text-cyan-400">{projectId}</span>
 					</p>
 				</div>
-				<Button
-					onClick={() => setIsUploadModalOpen(true)}
-					className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold">
-					<Upload className="w-4 h-4 mr-2" />
-					Upload More Documents
-				</Button>
+				<div className="flex items-center gap-3">
+					<Button
+						onClick={() => setIsReviewModalOpen(true)}
+						className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-bold">
+						<MessageSquare className="w-4 h-4 mr-2" />
+						Review Classifications
+					</Button>
+					<Button
+						onClick={() => setIsUploadModalOpen(true)}
+						className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold">
+						<Upload className="w-4 h-4 mr-2" />
+						Upload More Documents
+					</Button>
+				</div>
 			</div>
 
 			<UploadMoreModal
 				isOpen={isUploadModalOpen}
 				onClose={() => setIsUploadModalOpen(false)}
 				projectId={projectId}
+			/>
+
+			<ReviewFeedbackModal
+				isOpen={isReviewModalOpen}
+				onClose={() => setIsReviewModalOpen(false)}
+				projectId={projectId}
+				onSubmitStart={handleReviewSubmitStart}
 			/>
 		</>
 	);
