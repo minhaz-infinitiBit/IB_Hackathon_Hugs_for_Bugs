@@ -7,11 +7,19 @@ import os
 import json
 
 from app.core.database import get_db
-from app.schemas.pdf_upload import PDFUploadResponse, ProjectResponse
+from app.schemas.pdf_upload import (
+    PDFUploadResponse, 
+    ProjectResponse,
+    ReclassificationRequest,
+    ReclassificationResponse,
+    ProjectMemoryResponse
+)
 from app.models.files import Project, File, FileType, RunStatus
 from app.tasks import document_processing
+from app.services.reclassification_service import ReclassificationService
 
 router = APIRouter()
+reclassification_service = ReclassificationService()
 
 @router.post("/upload-pdf/{project_id}", response_model=List[PDFUploadResponse])
 async def upload_pdf(
@@ -335,3 +343,264 @@ async def download_merged_pdf(
         filename=filename,
         media_type="application/pdf"
     )
+
+
+# ==================== HUMAN-IN-THE-LOOP ENDPOINTS ====================
+
+@router.get("/projects/{project_id}/memory", response_model=ProjectMemoryResponse)
+async def get_project_memory(
+    project_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get the project's classification results from agent memory.
+    
+    This endpoint retrieves the stored classification results for a project,
+    which can be used to display current classifications before reclassification.
+    """
+    # First check if project exists
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Get from agent memory
+    memory_results = reclassification_service.get_project_memory(project_id)
+    
+    if not memory_results:
+        # Try to build from database
+        files = db.query(File).filter(
+            File.project_id == project_id,
+            File.category_id.isnot(None)
+        ).all()
+        
+        if files:
+            classifications = [
+                {
+                    "file_id": f.id,
+                    "file_name": os.path.basename(f.file_path),
+                    "category_id": f.category_id,
+                    "category_name": f.category_german,
+                    "category_english": f.category_english,
+                    "confidence": f.classification_confidence,
+                    "reasoning": f.classification_reasoning
+                }
+                for f in files
+            ]
+            return ProjectMemoryResponse(
+                project_id=project_id,
+                found=True,
+                total_documents=len(classifications),
+                classifications=classifications,
+                merged_pdf_path=project.merged_pdf_path,
+                timestamp=None
+            )
+        
+        return ProjectMemoryResponse(
+            project_id=project_id,
+            found=False,
+            total_documents=0,
+            classifications=[],
+            merged_pdf_path=None,
+            timestamp=None
+        )
+    
+    return ProjectMemoryResponse(
+        project_id=project_id,
+        found=True,
+        total_documents=memory_results.get("total_documents", 0),
+        classifications=memory_results.get("classifications", []),
+        merged_pdf_path=memory_results.get("merged_pdf_path"),
+        timestamp=memory_results.get("timestamp")
+    )
+
+
+@router.post("/projects/{project_id}/reclassify", response_model=ReclassificationResponse)
+async def reclassify_files(
+    project_id: int,
+    request: ReclassificationRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Human-in-the-loop endpoint to reclassify files in a project using natural language.
+    
+    This endpoint accepts a natural language prompt and uses an AI agent to:
+    
+    1. Analyze the user's intent from the prompt
+    2. Identify which files need to be reclassified
+    3. Determine the target categories
+    4. Update database records (File model)
+    5. Optionally regenerate the merged PDF (default: True)
+    6. Update agent memory with new results
+    
+    Example request body:
+    ```json
+    {
+        "prompt": "Move the bank statement PDF to category 3",
+        "regenerate_pdf": true
+    }
+    ```
+    
+    Or more complex:
+    ```json
+    {
+        "prompt": "The document 'contract.pdf' should be in the employment category, and move all bank documents to Bankbescheinigungen",
+        "regenerate_pdf": true
+    }
+    ```
+    """
+    # Validate project exists
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Execute agent-based reclassification
+    result = reclassification_service.reclassify_with_prompt(
+        project_id=project_id,
+        db=db,
+        user_prompt=request.prompt,
+        regenerate_pdf=request.regenerate_pdf
+    )
+    
+    # Convert result to response
+    return ReclassificationResponse(
+        project_id=result.project_id,
+        success=result.success,
+        message=result.message,
+        prompt=result.prompt,
+        agent_reasoning=result.agent_reasoning,
+        total_updates=result.total_updates,
+        successful_updates=result.successful_updates,
+        failed_updates=result.failed_updates,
+        results=[
+            {
+                "file_id": r.file_id,
+                "old_category_id": r.old_category_id,
+                "new_category_id": r.new_category_id,
+                "success": r.success,
+                "message": r.message
+            }
+            for r in result.results
+        ],
+        merged_pdf_regenerated=result.merged_pdf_regenerated,
+        merged_pdf_path=result.merged_pdf_path,
+        download_url=result.download_url
+    )
+
+
+@router.put("/projects/{project_id}/files/{file_id}/category")
+async def update_file_category(
+    project_id: int,
+    file_id: int,
+    new_category_id: int = Body(..., ge=1, le=20, embed=True),
+    reasoning: str = Body(None, embed=True),
+    regenerate_pdf: bool = Body(True, embed=True),
+    db: Session = Depends(get_db)
+):
+    """
+    Update a single file's category.
+    
+    This is a simpler endpoint for updating just one file at a time.
+    For bulk updates, use the /projects/{project_id}/reclassify endpoint.
+    
+    Request body:
+    ```json
+    {
+        "new_category_id": 5,
+        "reasoning": "Document is an employment contract",
+        "regenerate_pdf": true
+    }
+    ```
+    """
+    # Validate project and file
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    file = db.query(File).filter(
+        File.id == file_id,
+        File.project_id == project_id
+    ).first()
+    if not file:
+        raise HTTPException(status_code=404, detail="File not found in project")
+    
+    # Execute reclassification
+    result = reclassification_service.reclassify(
+        project_id=project_id,
+        db=db,
+        updates=[{
+            "file_id": file_id,
+            "new_category_id": new_category_id,
+            "reasoning": reasoning
+        }],
+        regenerate_pdf=regenerate_pdf
+    )
+    
+    if not result.success:
+        raise HTTPException(status_code=400, detail=result.message)
+    
+    # Get the single result
+    item_result = result.results[0] if result.results else None
+    
+    return {
+        "project_id": project_id,
+        "file_id": file_id,
+        "old_category_id": item_result.old_category_id if item_result else None,
+        "new_category_id": new_category_id,
+        "success": True,
+        "message": item_result.message if item_result else "Updated",
+        "merged_pdf_regenerated": result.merged_pdf_regenerated,
+        "merged_pdf_path": result.merged_pdf_path,
+        "download_url": result.download_url
+    }
+
+
+@router.get("/projects/{project_id}/categories")
+async def get_available_categories(
+    project_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get available categories with current file counts for a project.
+    
+    Returns all 20 categories with the count of files in each category,
+    useful for displaying options when reclassifying files.
+    """
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    # Load categories
+    categories = reclassification_service.categories
+    
+    # Count files per category
+    from sqlalchemy import func
+    category_counts = db.query(
+        File.category_id,
+        func.count(File.id).label('count')
+    ).filter(
+        File.project_id == project_id,
+        File.category_id.isnot(None)
+    ).group_by(File.category_id).all()
+    
+    counts_dict = {cat_id: count for cat_id, count in category_counts}
+    
+    # Build response
+    result = []
+    for cat in categories:
+        cat_id = cat.get("id")
+        result.append({
+            "category_id": cat_id,
+            "category_name": cat.get("name", ""),
+            "category_english": cat.get("english_name", ""),
+            "description": cat.get("description", ""),
+            "file_count": counts_dict.get(cat_id, 0)
+        })
+    
+    total_files = sum(counts_dict.values())
+    
+    return {
+        "project_id": project_id,
+        "total_categories": len(categories),
+        "total_files": total_files,
+        "categories": result
+    }
