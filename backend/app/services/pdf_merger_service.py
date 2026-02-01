@@ -51,6 +51,10 @@ class PDFMergeResult:
         return asdict(self)
 
 
+# Base directory for merged PDFs: backend/app/data/merged/{project_id}/
+MERGED_BASE_DIR = Path(__file__).parent.parent / "data" / "merged"
+
+
 class PDFMergerService:
     """
     Service for merging classified PDFs by category.
@@ -68,31 +72,32 @@ class PDFMergerService:
     
     def __init__(
         self,
-        output_dir: str = None,
+        base_output_dir: str = None,
         category_pages_dir: str = None
     ):
         """
         Initialize the PDFMergerService.
         
         Args:
-            output_dir: Directory for saving merged PDF outputs.
-                       Defaults to backend/output/merged
+            base_output_dir: Base directory for saving merged PDF outputs.
+                            Defaults to backend/app/data/merged
+                            Actual output will be in {base_output_dir}/{project_id}/
             category_pages_dir: Directory containing category header pages.
                                Defaults to backend/app/data/Mustermann_Max_2024_WP_pages
         """
-        if output_dir is None:
-            base_dir = Path(__file__).parent.parent.parent
-            output_dir = base_dir / "output" / "merged"
+        if base_output_dir is None:
+            self.base_output_dir = MERGED_BASE_DIR
+        else:
+            self.base_output_dir = Path(base_output_dir)
         
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.base_output_dir.mkdir(parents=True, exist_ok=True)
         
         if category_pages_dir is None:
             category_pages_dir = CATEGORY_PAGES_DIR
         
         self.category_pages_dir = Path(category_pages_dir)
         
-        logger.info(f"PDFMergerService initialized. Output dir: {self.output_dir}")
+        logger.info(f"PDFMergerService initialized. Base output dir: {self.base_output_dir}")
         logger.info(f"Category pages dir: {self.category_pages_dir}")
     
     def _get_category_header_path(self, category_id: int) -> Path:
@@ -177,6 +182,12 @@ class PDFMergerService:
             return result
         
         try:
+            # Create project-specific output directory: app/data/merged/{project_id}/
+            project_output_dir = self.base_output_dir / str(project_id)
+            project_output_dir.mkdir(parents=True, exist_ok=True)
+            
+            logger.info(f"Merged PDF output directory: {project_output_dir}")
+            
             # Organize files by category
             files_by_category = self._organize_files_by_category(files)
             
@@ -234,7 +245,8 @@ class PDFMergerService:
             else:
                 output_filename = f"project_{project_id}_merged_{timestamp}.pdf"
             
-            output_path = self.output_dir / output_filename
+            # Save to project-specific directory
+            output_path = project_output_dir / output_filename
             
             # Write merged PDF
             with open(output_path, "wb") as output_file:
@@ -261,7 +273,7 @@ def merge_project_pdfs(
     project_id: int,
     files: List[Any],
     project_name: str = None,
-    output_dir: str = None
+    base_output_dir: str = None
 ) -> Dict[str, Any]:
     """
     Convenience function to merge project PDFs by category.
@@ -270,12 +282,12 @@ def merge_project_pdfs(
         project_id: The project ID
         files: List of File model objects
         project_name: Optional project name
-        output_dir: Optional output directory
+        base_output_dir: Optional base output directory (merged PDF will be in {base_output_dir}/{project_id}/)
         
     Returns:
         Merge result as dictionary
     """
-    service = PDFMergerService(output_dir=output_dir)
+    service = PDFMergerService(base_output_dir=base_output_dir)
     result = service.merge_pdfs_by_category(project_id, files, project_name)
     return result.to_dict()
 
