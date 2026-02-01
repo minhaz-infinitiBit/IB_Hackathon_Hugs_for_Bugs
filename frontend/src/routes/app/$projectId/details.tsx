@@ -19,12 +19,13 @@ export const Route = createFileRoute("/app/$projectId/details")({
 
 interface MergedPdfResponse {
 	project_id: number;
-	project_name: string;
+	status: string;
+	merged_pdf_available: boolean;
 	merged_pdf_path: string;
-	merged_pdf_url: string;
-	total_pages: number;
-	file_count: number;
-	created_at: string;
+	merged_pdf_filename: string;
+	preview_url: string;
+	file_size_bytes: number;
+	download_url: string;
 }
 
 function ProjectDetailsPage() {
@@ -54,7 +55,11 @@ function ProjectDetailsPage() {
 		mergedPdfResponse?.status === 200
 			? (mergedPdfResponse.data as MergedPdfResponse)
 			: null;
-	const mergedPdfUrl = mergedPdfData?.merged_pdf_url || null;
+
+	// Use preview_url from API response
+	const mergedPdfUrl = mergedPdfData?.merged_pdf_available
+		? mergedPdfData.preview_url
+		: null;
 
 	return (
 		<ProjectDetails projectId={numericProjectId}>

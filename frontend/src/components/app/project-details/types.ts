@@ -69,17 +69,21 @@ export function isFileViewable(contentType: string): boolean {
 export function transformApiResponse(
 	response: GroupedFilesResponse,
 ): DocumentClassification[] {
+	if (!response?.grouped_files) {
+		return [];
+	}
+
 	return response.grouped_files.map((group, index) => ({
 		id: `category-${index}`,
 		name: group.category,
-		count: group.files.length,
-		documents: group.files.map((file) => {
+		count: group.files?.length || 0,
+		documents: (group.files || []).map((file) => {
 			const contentType = getContentTypeFromFilename(file.file_name);
 			return {
 				id: String(file.file_id),
 				filename: file.file_name,
 				contentType,
-				previewUrl: file.preview_url,
+				previewUrl: file.preview_url || "",
 				isViewable: isFileViewable(contentType),
 				confidence: file.confidence,
 				reasoning: file.reasoning,
