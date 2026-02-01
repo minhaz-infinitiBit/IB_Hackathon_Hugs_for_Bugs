@@ -61,6 +61,7 @@ class Project(Base):
     id = Column(Integer, primary_key=True, index=True)
     status = Column(Enum(RunStatus), nullable=False, default=RunStatus.processing)
     project_name = Column(String, nullable=False)
+    merged_pdf_path = Column(String, nullable=True)  # Path to the merged PDF after classification
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 

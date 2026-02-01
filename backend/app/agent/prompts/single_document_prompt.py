@@ -30,6 +30,15 @@ class SingleDocumentPrompt(BasePrompt):
         """
         return f"""You are an expert German tax document classifier. Classify this single document into one of 20 tax categories.
 
+Each category includes:
+- **id**: Unique category identifier (1-20)
+- **german**: German category name
+- **english**: English translation
+- **description**: What the category covers
+- **content_info**: Detailed information about typical content
+- **keywords**: Keywords to help identify documents
+- **typical_documents**: Examples of document types in this category
+
 ## CATEGORIES:
 {categories}
 
@@ -40,7 +49,7 @@ class SingleDocumentPrompt(BasePrompt):
 {cls._format_context(memory_context)}
 
 ## TASK:
-Classify this document and return ONLY a JSON object:
+Classify this document using the category keywords and typical_documents to find the best match. Return ONLY a JSON object:
 ```json
 {{
     "file_name": "exact_filename.extension",

@@ -25,34 +25,37 @@ CATEGORIES_FILE = Path(__file__).parent.parent.parent / "data" / "categories.jso
 _classification_results: List[Dict] = []
 
 
-@tool(_description="Get all 20 tax document categories with their descriptions and examples. Use this to understand what categories are available for classification.")
+@tool(_description="Get all tax document categories with their descriptions, examples, keywords, and typical documents. Use this to understand what categories are available for classification.")
 def get_categories() -> str:
     """
-    Get all available document categories.
+    Get all available document categories with enriched information.
 
     Returns:
-        JSON string with all categories
+        JSON string with all categories including keywords, content_info, and typical_documents
     """
     try:
         if CATEGORIES_FILE.exists():
             with open(CATEGORIES_FILE, 'r', encoding='utf-8') as f:
                 categories = json.load(f)
 
-            # Return simplified category info for the agent
-            simplified = []
+            # Return enriched category info for the agent
+            enriched = []
             for cat in categories:
-                simplified.append({
+                enriched.append({
                     "id": cat["id"],
                     "german": cat["category_german"],
                     "english": cat["english_translation"],
                     "description": cat["description"],
+                    "content_info": cat.get("content_info", ""),
+                    "keywords": cat.get("keywords", []),
+                    "typical_documents": cat.get("typical_documents", []),
                     "examples": cat["examples"]
                 })
 
             return json.dumps({
                 "success": True,
-                "total_categories": len(simplified),
-                "categories": simplified
+                "total_categories": len(enriched),
+                "categories": enriched
             }, indent=2, ensure_ascii=False)
         else:
             return json.dumps({
@@ -92,7 +95,7 @@ def classify_document(
     from ..memory import get_memory_manager
 
     try:
-        # Validate category ID
+        # Validate category ID (fixed 20 categories)
         if not 1 <= category_id <= 20:
             return json.dumps({
                 "success": False,
@@ -284,18 +287,21 @@ def load_categories_from_file() -> List[Dict]:
 
 
 def get_categories_for_prompt() -> str:
-    """Format categories for prompt (non-tool function)."""
+    """Format categories for prompt with enriched information (non-tool function)."""
     categories = load_categories_from_file()
-    simplified = []
+    enriched = []
     for cat in categories:
-        simplified.append({
+        enriched.append({
             "id": cat["id"],
             "german": cat["category_german"],
             "english": cat["english_translation"],
             "description": cat["description"],
+            "content_info": cat.get("content_info", ""),
+            "keywords": cat.get("keywords", []),
+            "typical_documents": cat.get("typical_documents", []),
             "examples": cat["examples"]
         })
-    return json.dumps(simplified, indent=2, ensure_ascii=False)
+    return json.dumps(enriched, indent=2, ensure_ascii=False)
 
 
 # Export tools list for agent

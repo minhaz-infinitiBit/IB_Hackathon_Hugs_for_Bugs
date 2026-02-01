@@ -4,245 +4,307 @@
     "category_german": "Fragebogen",
     "english_translation": "Questionnaire",
     "description": "General intake forms or specific queries from the tax office.",
-    "examples": "Completed client onboarding forms, tax registration forms.",
-    "files": [
-      {
-        "file_name": "2024 Germany Tax Questionnaire.pdf",
-        "summary": ""
-      }
-    ]
+    "content_info": "Forms requesting personal, financial, or tax-related information from the taxpayer. These are typically used for initial data collection or follow-up inquiries from the Finanzamt.",
+    "typical_documents": [
+      "Client onboarding forms",
+      "Tax registration forms",
+      "Finanzamt inquiry forms",
+      "Tax questionnaire forms"
+    ],
+    "keywords": ["Fragebogen", "questionnaire", "inquiry", "registration", "onboarding", "Finanzamt questions"],
+    "examples": "Completed client onboarding forms, tax registration forms, 2024 Germany Tax Questionnaire."
   },
   {
     "id": 2,
     "category_german": "Wichtige Korrespondenz",
     "english_translation": "Important Correspondence",
     "description": "Critical letters that require action or document a decision.",
-    "examples": "Letters from the Finanzamt, power of attorney, tax assessment notices.",
-    "files": [
-      {
-        "file_name": "Re Flynn Management Ltd Begley, Thomas 2022 German Income Tax Assessment Notice.pdf",
-        "summary": ""
-      }
-    ]
+    "content_info": "Official letters and correspondence from tax authorities or important communications requiring taxpayer attention. These include tax assessment notices, power of attorney documents, and official decisions.",
+    "typical_documents": [
+      "Letters from the Finanzamt",
+      "Power of attorney documents",
+      "Tax assessment notices (Steuerbescheid)",
+      "Official decisions and rulings"
+    ],
+    "keywords": ["Korrespondenz", "correspondence", "Finanzamt", "Steuerbescheid", "assessment notice", "official letter", "power of attorney", "Vollmacht"],
+    "examples": "Letters from the Finanzamt, power of attorney, tax assessment notices, official rulings."
   },
   {
     "id": 3,
     "category_german": "Mantelbogen",
     "english_translation": "Main Tax Form (ESt 1A)",
-    "description": "The core document containing personal data and basic tax info.",
-    "examples": "The basic 4-page personal info form (name, address, bank details).",
-    "files": [
-      {
-        "file_name": "4941181 - BvF mit Termin_ Unterlagen und Lohnnachweis.pdf",
-        "summary": ""
-      }
-    ]
+    "description": "The core document containing personal data and basic tax info. Also known as the 'Main Form' or cover sheet.",
+    "content_info": "Personal information, bank details, summary of income, special expenses, extraordinary burdens, and tax reductions. This is the foundational document that summarizes all attached annexes.",
+    "typical_documents": [
+      "Basic 4-page personal info form",
+      "Personal data forms (name, address, bank details)",
+      "ESt 1A main form",
+      "Summary of attachments"
+    ],
+    "keywords": ["Mantelbogen", "main form", "ESt 1A", "personal data", "bank details", "address", "summary", "cover sheet"],
+    "examples": "The basic 4-page personal info form (name, address, bank details), ESt 1A form."
   },
   {
     "id": 4,
     "category_german": "Sonderausgaben",
     "english_translation": "Special Expenses",
     "description": "Private expenses that are tax-deductible by law.",
-    "examples": "Church tax, donation receipts, initial vocational training costs.",
-    "files": []
+    "content_info": "Contributions and expenses that can be deducted from taxable income, including church tax, charitable donations, and initial vocational training costs.",
+    "typical_documents": [
+      "Church tax receipts (Kirchensteuer)",
+      "Donation receipts (Spendenquittungen)",
+      "Initial vocational training cost documentation",
+      "Special expense certificates"
+    ],
+    "keywords": ["Sonderausgaben", "special expenses", "church tax", "Kirchensteuer", "donation", "Spende", "vocational training", "Ausbildung"],
+    "examples": "Church tax, donation receipts, initial vocational training costs."
   },
   {
     "id": 5,
     "category_german": "Außergewöhnliche Belastung",
     "english_translation": "Extraordinary Burden",
-    "description": "Unavoidable, high private expenses compared to the average person.",
-    "examples": "Medical bills, dental costs, funeral expenses, disability-related costs.",
-    "files": []
+    "description": "Unavoidable, high private expenses compared to the average person. Documented under § 33b EStG.",
+    "content_info": "Medical expenses, care costs, lump sum amounts according to § 33b EStG. These are expenses that significantly exceed what is typical for most taxpayers.",
+    "typical_documents": [
+      "Medical bills and receipts",
+      "Dental costs documentation",
+      "Funeral expenses",
+      "Disability-related costs",
+      "Nursing home costs",
+      "Disability allowance (Behindertenpauschbetrag)"
+    ],
+    "keywords": ["außergewöhnliche Belastung", "extraordinary burden", "medical", "dental", "funeral", "disability", "Behindertenpauschbetrag", "nursing home", "Pflegeheim"],
+    "examples": "Medical bills, dental costs, funeral expenses, disability-related costs, nursing home expenses."
   },
   {
     "id": 6,
     "category_german": "Vorsorge",
-    "english_translation": "Pension/Provident Expenses",
-    "description": "Contributions toward future security and insurance.",
-    "examples": "Health, long-term care, and unemployment insurance certificates.",
-    "files": []
+    "english_translation": "Pension/Provident Expenses (Anlage Vorsorgeaufwand)",
+    "description": "Contributions toward future security and insurance. Pension-related expenses.",
+    "content_info": "Health, nursing care, pension, accident, and liability insurance contributions. Contributions to statutory/private health insurance and pension insurance.",
+    "typical_documents": [
+      "Health insurance certificates",
+      "Long-term care insurance documents",
+      "Unemployment insurance certificates",
+      "Pension insurance statements",
+      "Accident insurance documents",
+      "Liability insurance certificates"
+    ],
+    "keywords": ["Vorsorge", "pension", "health insurance", "Krankenversicherung", "Pflegeversicherung", "nursing care", "Rentenversicherung", "pension insurance", "accident insurance"],
+    "examples": "Health, long-term care, and unemployment insurance certificates, pension insurance statements."
   },
   {
     "id": 7,
     "category_german": "AV",
-    "english_translation": "Old-Age Provision",
-    "description": "Specifically for certified private pension plans.",
-    "examples": "Riester or Rürup pension contribution statements.",
-    "files": []
+    "english_translation": "Old-Age Provision (Anlage AV / Riester)",
+    "description": "Specifically for certified private pension plans. Tax-favored retirement contributions.",
+    "content_info": "Contributions to certified pension plans (Riester pension). Payments into Riester contracts for tax incentives.",
+    "typical_documents": [
+      "Riester pension contribution statements",
+      "Rürup pension documents",
+      "Certified pension plan certificates",
+      "Annual Riester contract statements"
+    ],
+    "keywords": ["AV", "Altersvorsorge", "Riester", "Rürup", "pension plan", "retirement", "certified pension"],
+    "examples": "Riester or Rürup pension contribution statements, Riester contract payments."
   },
   {
     "id": 8,
     "category_german": "Kind",
     "english_translation": "Child (Anlage Kind)",
-    "description": "Expenses and data related to children.",
-    "examples": "School fee receipts, childcare invoices (Kita), child benefit info.",
-    "files": []
+    "description": "Expenses and data related to children. Consideration of children for tax purposes.",
+    "content_info": "Information on children, child benefit (Kindergeld), child allowance (Kinderfreibetrag), and childcare costs. Covers both minor and adult children.",
+    "typical_documents": [
+      "School fee receipts",
+      "Childcare invoices (Kita)",
+      "Child benefit information",
+      "Child allowance documents",
+      "Information on minor and adult children"
+    ],
+    "keywords": ["Kind", "child", "Kindergeld", "child benefit", "Kinderfreibetrag", "childcare", "Kita", "school fees", "Kinderbetreuung"],
+    "examples": "School fee receipts, childcare invoices (Kita), child benefit info, information on minor and adult children."
   },
   {
     "id": 9,
     "category_german": "Gewerbebetrieb",
     "english_translation": "Trade/Business (Anlage G)",
-    "description": "Income from a registered commercial business.",
-    "examples": "Profit/loss statements for a shop, trade tax documents.",
-    "files": []
+    "description": "Income from a registered commercial business. Income and expenditure from commercial activities.",
+    "content_info": "Income from sole proprietorships and commercial enterprises. Includes trade tax documents and profit/loss statements.",
+    "typical_documents": [
+      "Profit/loss statements for a shop",
+      "Trade tax documents (Gewerbesteuer)",
+      "Business income statements",
+      "Commercial enterprise financial records"
+    ],
+    "keywords": ["Gewerbebetrieb", "trade", "business", "Anlage G", "Gewerbesteuer", "commercial", "sole proprietorship", "Einzelunternehmen"],
+    "examples": "Profit/loss statements for a shop, trade tax documents, income from sole proprietorships."
   },
   {
     "id": 10,
     "category_german": "Selbständige Arbeit",
     "english_translation": "Freelance/Self-Employed (Anlage S)",
-    "description": "Income from professional 'liberal' services (doctors, lawyers, etc.).",
-    "examples": "Invoices and expense logs for freelancers or consultants.",
-    "files": []
+    "description": "Income from professional 'liberal' services (doctors, lawyers, etc.). Income and expenses from freelance activities.",
+    "content_info": "Income and expense documentation for freelancers or consultants. Covers self-employed professionals like doctors, lawyers, tax consultants.",
+    "typical_documents": [
+      "Invoices from freelance work",
+      "Expense logs for freelancers",
+      "Consultant income statements",
+      "Professional service income records"
+    ],
+    "keywords": ["Selbständige", "freelance", "self-employed", "Anlage S", "freiberuflich", "doctor", "lawyer", "consultant", "Berater"],
+    "examples": "Invoices and expense logs for freelancers or consultants, income as a doctor, lawyer, or tax consultant."
   },
   {
     "id": 11,
     "category_german": "N / N-AUS / WA-ESt",
-    "english_translation": "Employment Income",
-    "description": "Wages from domestic/foreign employment or residency status.",
-    "examples": "Annual salary statements (Lohnsteuerbescheinigung), foreign paystubs.",
-    "files": [
-      {
-        "file_name": "Lohnsteuerbescheinigungen 2024.pdf",
-        "summary": ""
-      },
-      {
-        "file_name": "Bild1.png",
-        "summary": ""
-      },
-      {
-        "file_name": "Bild2.png",
-        "summary": ""
-      },
-      {
-        "file_name": "Bild3.png",
-        "summary": ""
-      },
-      {
-        "file_name": "Bild4.png",
-        "summary": ""
-      },
-      {
-        "file_name": "Bild5.png",
-        "summary": ""
-      },
-      {
-        "file_name": "Bild6.png",
-        "summary": ""
-      },
-      {
-        "file_name": "Bild7.png",
-        "summary": ""
-      },
-      {
-        "file_name": "Bild8.png",
-        "summary": ""
-      },
-      {
-        "file_name": "Bild9.png",
-        "summary": ""
-      },
-      {
-        "file_name": "Bild10.png",
-        "summary": ""
-      },
-      {
-        "file_name": "Bild11.png",
-        "summary": ""
-      },
-      {
-        "file_name": "Bild12.png",
-        "summary": ""
-      }
-    ]
+    "english_translation": "Employment Income (Anlage N)",
+    "description": "Wages from domestic/foreign employment or residency status. Salary and income-related expenses.",
+    "content_info": "Salary, income-related expenses, tax-exempt employer benefits, commuting allowance. Annual salary statements (Lohnsteuerbescheinigung) and foreign paystubs.",
+    "typical_documents": [
+      "Annual salary statements (Lohnsteuerbescheinigung)",
+      "Foreign paystubs",
+      "Travel expenses to work",
+      "Work equipment receipts",
+      "Employer benefit statements"
+    ],
+    "keywords": ["Lohnsteuerbescheinigung", "salary", "wages", "employment income", "Anlage N", "N-AUS", "WA-ESt", "paystub", "commuting", "Pendlerpauschale"],
+    "examples": "Annual salary statements (Lohnsteuerbescheinigung), foreign paystubs, salary, wages, travel expenses to work."
   },
   {
     "id": 12,
     "category_german": "Werbungskosten",
     "english_translation": "Professional Expenses",
     "description": "Costs incurred to earn income (strictly work-related).",
-    "examples": "Commuting logs, work equipment (laptop), home office bills.",
-    "files": []
+    "content_info": "Work-related expenses that can be deducted from taxable income. Includes commuting costs, work equipment, and home office expenses.",
+    "typical_documents": [
+      "Commuting logs (Pendlerpauschale)",
+      "Work equipment receipts (laptop, computer)",
+      "Home office bills",
+      "Professional training costs",
+      "Work-related travel expenses"
+    ],
+    "keywords": ["Werbungskosten", "professional expenses", "commuting", "work equipment", "home office", "Arbeitsmittel", "Fahrtkosten"],
+    "examples": "Commuting logs, work equipment (laptop), home office bills, professional training costs."
   },
   {
     "id": 13,
     "category_german": "KAP",
     "english_translation": "Capital Assets (Anlage KAP)",
-    "description": "Income from investments, interest, or dividends.",
-    "examples": "Annual tax certificates from banks, dividend statements.",
-    "files": []
+    "description": "Income from investments, interest, or dividends. Capital gains subject to withholding tax.",
+    "content_info": "Capital income subject to German withholding tax including interest, dividends, and share gains. Annual tax certificates from banks and dividend statements. Also includes KAP-INV for foreign investment income without domestic tax deduction and KAP-BET for income from participations.",
+    "typical_documents": [
+      "Annual tax certificates from banks",
+      "Dividend statements",
+      "Interest from savings accounts",
+      "Profits from share sales",
+      "Foreign investment fund income (KAP-INV)",
+      "Partnership profit shares (KAP-BET)"
+    ],
+    "keywords": ["KAP", "capital assets", "Kapitalerträge", "dividends", "interest", "Zinsen", "Dividenden", "shares", "Aktien", "investment", "bank certificate"],
+    "examples": "Annual tax certificates from banks, dividend statements, interest from savings accounts, profits from share sales."
   },
   {
     "id": 14,
     "category_german": "V+V",
-    "english_translation": "Rental & Leasing",
-    "description": "Income/expenses from renting out property.",
-    "examples": "Rental contracts, property repair bills, property management fees.",
-    "files": []
+    "english_translation": "Rental & Leasing (Anlage V)",
+    "description": "Income/expenses from renting out property. Letting and leasing income.",
+    "content_info": "Rental income and income-related expenses from apartments, houses, and garages. Includes property repair bills and management fees.",
+    "typical_documents": [
+      "Rental contracts",
+      "Property repair bills",
+      "Property management fees",
+      "Rental income statements",
+      "Garage rental agreements"
+    ],
+    "keywords": ["V+V", "Vermietung", "Verpachtung", "rental", "leasing", "Anlage V", "property", "Immobilie", "rent", "Miete"],
+    "examples": "Rental contracts, property repair bills, property management fees, rental income from apartments, houses, garages."
   },
   {
     "id": 15,
     "category_german": "AUS",
     "english_translation": "Foreign Income",
     "description": "General category for income earned outside Germany.",
-    "examples": "Proof of foreign taxes paid, foreign income statements.",
-    "files": []
+    "content_info": "Proof of foreign taxes paid and foreign income statements. Documentation of income earned in other countries.",
+    "typical_documents": [
+      "Proof of foreign taxes paid",
+      "Foreign income statements",
+      "International employment income",
+      "Foreign business income documentation"
+    ],
+    "keywords": ["AUS", "Ausland", "foreign income", "international", "foreign taxes", "ausländische Einkünfte"],
+    "examples": "Proof of foreign taxes paid, foreign income statements."
   },
   {
     "id": 16,
     "category_german": "Info Ausland",
-    "english_translation": "Foreign Info/Regulations",
-    "description": "Information regarding international tax treaties or status.",
-    "examples": "Double taxation treaty documents, certificates of residence.",
-    "files": [
-      {
-        "file_name": "CC 2023 Income Tax Cover Letter.pdf",
-        "summary": ""
-      }
-    ]
+    "english_translation": "Foreign Info/Regulations (Anlage WA-ESt)",
+    "description": "Information regarding international tax treaties or status. Additional information for income tax returns.",
+    "content_info": "Double taxation treaty documents, certificates of residence, and supplementary information for international tax scenarios.",
+    "typical_documents": [
+      "Double taxation treaty documents",
+      "Certificates of residence",
+      "International tax information",
+      "Foreign income cover letters"
+    ],
+    "keywords": ["Info Ausland", "foreign info", "WA-ESt", "double taxation", "Doppelbesteuerung", "residence certificate", "international tax"],
+    "examples": "Double taxation treaty documents, certificates of residence, international tax scenario information."
   },
   {
     "id": 17,
     "category_german": "Kalender",
     "english_translation": "Calendar/Records",
     "description": "Chronological logs or time-based documentation.",
-    "examples": "Driver's logbooks (Fahrtenbuch), appointment diaries.",
-    "files": [
-      {
-        "file_name": "Coughlan, Cian_2023_German Income Tax Return.pdf",
-        "summary": ""
-      },
-      {
-        "file_name": "Coughlan, Cian_2024_EStE_German Tax Return.pdf",
-        "summary": ""
-      },
-      {
-        "file_name": "5070400 - ESt-Bescheid 2023 .pdf",
-        "summary": ""
-      }
-    ]
+    "content_info": "Time-based records and logs used for tax documentation purposes, including travel logs and appointment records.",
+    "typical_documents": [
+      "Driver's logbooks (Fahrtenbuch)",
+      "Appointment diaries",
+      "Travel calendars (Reisekalender)",
+      "Work time records"
+    ],
+    "keywords": ["Kalender", "calendar", "Fahrtenbuch", "logbook", "Reisekalender", "travel calendar", "records", "diary", "time log"],
+    "examples": "Driver's logbooks (Fahrtenbuch), appointment diaries, travel calendars."
   },
   {
     "id": 18,
     "category_german": "Vorjahr",
     "english_translation": "Previous Year",
     "description": "Documents belonging to the prior tax period.",
-    "examples": "The final tax assessment (Steuerbescheid) from the last year.",
-    "files": []
+    "content_info": "Tax documents from the previous tax year, used for reference or carryover purposes.",
+    "typical_documents": [
+      "Final tax assessment from last year (Steuerbescheid)",
+      "Previous year income tax return",
+      "Prior year financial statements"
+    ],
+    "keywords": ["Vorjahr", "previous year", "prior year", "last year", "Steuerbescheid", "tax assessment"],
+    "examples": "The final tax assessment (Steuerbescheid) from the last year."
   },
   {
     "id": 19,
     "category_german": "Nachfolgendes Steuerjahr",
     "english_translation": "Subsequent Tax Year",
     "description": "Documents for the upcoming tax period.",
-    "examples": "Pre-payment notices for the next year, future contracts.",
-    "files": []
+    "content_info": "Documents related to future tax obligations, including pre-payment notices and future contracts.",
+    "typical_documents": [
+      "Pre-payment notices for next year",
+      "Future contracts",
+      "Advance tax payment documents"
+    ],
+    "keywords": ["nachfolgendes Steuerjahr", "subsequent year", "next year", "future", "pre-payment", "Vorauszahlung"],
+    "examples": "Pre-payment notices for the next year, future contracts."
   },
   {
     "id": 20,
     "category_german": "Nicht Verwendbar",
     "english_translation": "Not Applicable / Unusable",
     "description": "Documents that are irrelevant to the tax return.",
-    "examples": "Private grocery receipts, internal drafts, duplicates.",
-    "files": []
+    "content_info": "Documents that have no tax relevance and should not be included in the tax return submission.",
+    "typical_documents": [
+      "Private grocery receipts",
+      "Internal drafts",
+      "Duplicate documents",
+      "Non-tax-related correspondence"
+    ],
+    "keywords": ["nicht verwendbar", "not applicable", "unusable", "irrelevant", "duplicate", "private", "non-tax"],
+    "examples": "Private grocery receipts, internal drafts, duplicates, non-tax-related documents."
   }
 ]

@@ -782,6 +782,280 @@ class MemoryManager:
 
         return stats
 
+    # ==================== PROJECT-SCOPED MEMORY METHODS ====================
+    
+    def save_project_results(
+        self,
+        project_id: int,
+        classifications: List[Dict],
+        documents: List[Dict] = None,
+        merged_pdf_path: str = None
+    ) -> str:
+        """
+        Save complete classification results for a project.
+        
+        This stores all classification results keyed by project_id for later retrieval
+        in the human-in-the-loop flow.
+        
+        Args:
+            project_id: The project ID to use as identifier
+            classifications: List of classification result dictionaries
+            documents: List of original document data (optional)
+            merged_pdf_path: Path to the merged PDF (optional)
+            
+        Returns:
+            Memory ID
+        """
+        self._initialize()
+        
+        # Build a comprehensive content for semantic search
+        content_parts = [f"Project {project_id} classification results:"]
+        for cls in classifications:
+            content_parts.append(
+                f"- {cls.get('file_name', 'unknown')}: Category {cls.get('category_id')} ({cls.get('category_name', '')})"
+            )
+        content = "\n".join(content_parts)
+        
+        # Store full data in metadata
+        metadata = {
+            "project_id": project_id,
+            "classifications": classifications,
+            "documents": documents or [],
+            "merged_pdf_path": merged_pdf_path,
+            "total_documents": len(classifications),
+            "type": "project_results",
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        # Check if we already have results for this project, update if so
+        existing = self.get_project_results(project_id)
+        if existing:
+            memory_id = existing.get("id") or existing.get("memory_id")
+            if memory_id:
+                # For simple memory, remove old and add new
+                if not self._memory:
+                    self._simple_memory = [
+                        e for e in self._simple_memory 
+                        if not (e.get("type") == "project_results" and e.get("project_id") == project_id)
+                    ]
+        
+        return self.add_memory(content, metadata, memory_type="project_results")
+    
+    def get_project_results(self, project_id: int) -> Optional[Dict]:
+        """
+        Retrieve classification results for a specific project.
+        
+        Args:
+            project_id: The project ID
+            
+        Returns:
+            Dictionary containing project results or None if not found
+        """
+        self._initialize()
+        
+        # Search for project results
+        results = self.search_memory(
+            query=f"Project {project_id} classification results",
+            limit=10,
+            memory_type="project_results"
+        )
+        
+        # Find exact match by project_id
+        for r in results:
+            metadata = r.get("metadata", {})
+            if metadata.get("project_id") == project_id:
+                return {
+                    "id": r.get("id") or r.get("memory_id"),
+                    "project_id": project_id,
+                    "classifications": metadata.get("classifications", []),
+                    "documents": metadata.get("documents", []),
+                    "merged_pdf_path": metadata.get("merged_pdf_path"),
+                    "total_documents": metadata.get("total_documents", 0),
+                    "timestamp": metadata.get("timestamp")
+                }
+        
+        # Fallback check in simple memory
+        for entry in self._simple_memory:
+            if entry.get("type") == "project_results" and entry.get("project_id") == project_id:
+                return {
+                    "id": entry.get("id"),
+                    "project_id": project_id,
+                    "classifications": entry.get("classifications", []),
+                    "documents": entry.get("documents", []),
+                    "merged_pdf_path": entry.get("merged_pdf_path"),
+                    "total_documents": entry.get("total_documents", 0),
+                    "timestamp": entry.get("timestamp")
+                }
+        
+        return None
+    
+    def update_project_classification(
+        self,
+        project_id: int,
+        file_id: int,
+        new_category_id: int,
+        new_category_name: str = None,
+        new_category_english: str = None,
+        reasoning: str = None
+    ) -> bool:
+        """
+        Update a single file's classification within a project's results.
+        
+        Args:
+            project_id: The project ID
+            file_id: The file ID to update
+            new_category_id: The new category ID
+            new_category_name: The new German category name (optional)
+            new_category_english: The new English category name (optional)
+            reasoning: Reasoning for the change (optional)
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        self._initialize()
+        
+        project_results = self.get_project_results(project_id)
+        if not project_results:
+            logger.warning(f"No project results found for project {project_id}")
+            return False
+        
+        classifications = project_results.get("classifications", [])
+        updated = False
+        
+        for cls in classifications:
+            if cls.get("file_id") == file_id:
+                cls["category_id"] = new_category_id
+                if new_category_name:
+                    cls["category_name"] = new_category_name
+                if new_category_english:
+                    cls["category_english"] = new_category_english
+                if reasoning:
+                    cls["reasoning"] = reasoning
+                    cls["reclassified"] = True
+                    cls["reclassification_timestamp"] = datetime.now().isoformat()
+                updated = True
+                break
+        
+        if not updated:
+            logger.warning(f"File {file_id} not found in project {project_id} classifications")
+            return False
+        
+        # Re-save the project results with updated classifications
+        self.save_project_results(
+            project_id=project_id,
+            classifications=classifications,
+            documents=project_results.get("documents"),
+            merged_pdf_path=project_results.get("merged_pdf_path")
+        )
+        
+        logger.info(f"Updated file {file_id} classification to category {new_category_id} in project {project_id}")
+        return True
+    
+    def update_project_classifications_bulk(
+        self,
+        project_id: int,
+        updates: List[Dict]
+    ) -> Dict[str, Any]:
+        """
+        Update multiple file classifications within a project's results.
+        
+        Args:
+            project_id: The project ID
+            updates: List of update dictionaries, each containing:
+                - file_id: The file ID to update
+                - new_category_id: The new category ID
+                - new_category_name: The new German category name (optional)
+                - new_category_english: The new English category name (optional)
+                - reasoning: Reasoning for the change (optional)
+                
+        Returns:
+            Dictionary with success count and failed updates
+        """
+        self._initialize()
+        
+        project_results = self.get_project_results(project_id)
+        if not project_results:
+            return {
+                "success": False,
+                "error": f"No project results found for project {project_id}",
+                "updated_count": 0,
+                "failed_updates": updates
+            }
+        
+        classifications = project_results.get("classifications", [])
+        
+        # Build file_id to classification index mapping
+        cls_by_file_id = {cls.get("file_id"): idx for idx, cls in enumerate(classifications)}
+        
+        updated_count = 0
+        failed_updates = []
+        
+        for update in updates:
+            file_id = update.get("file_id")
+            
+            if file_id not in cls_by_file_id:
+                failed_updates.append({
+                    "file_id": file_id,
+                    "error": "File not found in project"
+                })
+                continue
+            
+            idx = cls_by_file_id[file_id]
+            cls = classifications[idx]
+            
+            cls["category_id"] = update.get("new_category_id")
+            if update.get("new_category_name"):
+                cls["category_name"] = update["new_category_name"]
+            if update.get("new_category_english"):
+                cls["category_english"] = update["new_category_english"]
+            if update.get("reasoning"):
+                cls["reasoning"] = update["reasoning"]
+            
+            cls["reclassified"] = True
+            cls["reclassification_timestamp"] = datetime.now().isoformat()
+            updated_count += 1
+        
+        # Re-save the project results with updated classifications
+        self.save_project_results(
+            project_id=project_id,
+            classifications=classifications,
+            documents=project_results.get("documents"),
+            merged_pdf_path=project_results.get("merged_pdf_path")
+        )
+        
+        logger.info(f"Bulk updated {updated_count} classifications in project {project_id}")
+        
+        return {
+            "success": True,
+            "updated_count": updated_count,
+            "failed_updates": failed_updates
+        }
+    
+    def get_project_classification_by_file(
+        self,
+        project_id: int,
+        file_id: int
+    ) -> Optional[Dict]:
+        """
+        Get a specific file's classification from project memory.
+        
+        Args:
+            project_id: The project ID
+            file_id: The file ID
+            
+        Returns:
+            Classification dictionary or None if not found
+        """
+        project_results = self.get_project_results(project_id)
+        if not project_results:
+            return None
+        
+        for cls in project_results.get("classifications", []):
+            if cls.get("file_id") == file_id:
+                return cls
+        
+        return None
+
 
 # Global memory manager instance
 _memory_manager: Optional[MemoryManager] = None
