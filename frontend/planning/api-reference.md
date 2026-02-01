@@ -219,7 +219,7 @@ const { data } =
 
 **Type**: Query (GET)
 
-**Description**: Get the merged PDF info for a project. Returns metadata about the merged PDF including download URL.
+**Description**: Get the merged PDF info for a project. Returns metadata about the merged PDF including preview and download URLs.
 
 **Parameters**:
 
@@ -227,12 +227,33 @@ const { data } =
 projectId: number; // Path parameter (required)
 ```
 
-**Returns**: `unknown` (merged PDF metadata)
+**Returns**: `MergedPdfResponse`
+
+```typescript
+interface MergedPdfResponse {
+	project_id: number;
+	status: string; // "finished_processing", etc.
+	merged_pdf_available: boolean;
+	merged_pdf_path: string;
+	merged_pdf_filename: string;
+	preview_url: string; // URL for previewing the PDF
+	file_size_bytes: number;
+	download_url: string; // URL for downloading the PDF
+}
+```
 
 **Usage**:
 
 ```tsx
 const { data } = useGetMergedPdfFilesProjectsProjectIdMergedPdfGet(projectId);
+
+// Access preview URL
+const previewUrl = data?.data?.preview_url;
+
+// Check if merged PDF is available
+if (data?.data?.merged_pdf_available) {
+	// Show the merged PDF viewer
+}
 ```
 
 ---
@@ -254,8 +275,21 @@ projectId: number; // Path parameter (required)
 **Usage**:
 
 ```tsx
-const { data } =
-	useDownloadMergedPdfFilesProjectsProjectIdMergedPdfDownloadGet(projectId);
+// Using the URL getter function for download
+import { getDownloadMergedPdfFilesProjectsProjectIdMergedPdfDownloadGetUrl } from "@/api/generated/files/files";
+
+const handleDownload = async (projectId: number) => {
+	const baseUrl = import.meta.env.VITE_API_BASE_URL;
+	const downloadPath =
+		getDownloadMergedPdfFilesProjectsProjectIdMergedPdfDownloadGetUrl(
+			projectId,
+		);
+	const response = await fetch(`${baseUrl}${downloadPath}`, {
+		headers: { "ngrok-skip-browser-warning": "true" },
+	});
+	const blob = await response.blob();
+	// Create download link...
+};
 ```
 
 ---
@@ -414,6 +448,7 @@ interface ClassifiedFile {
 	file_id: number;
 	file_name: string;
 	file_path: string;
+	preview_url: string; // URL for file preview (use with baseUrl)
 	confidence: string; // e.g., "0.99"
 	reasoning: string; // AI reasoning for classification
 }
@@ -491,6 +526,7 @@ import {
 	// Merged PDF
 	useGetMergedPdfFilesProjectsProjectIdMergedPdfGet,
 	useDownloadMergedPdfFilesProjectsProjectIdMergedPdfDownloadGet,
+	getDownloadMergedPdfFilesProjectsProjectIdMergedPdfDownloadGetUrl, // URL helper
 
 	// Memory & Reclassification
 	useGetProjectMemoryFilesProjectsProjectIdMemoryGet,
@@ -501,6 +537,38 @@ import {
 	// File Preview
 	usePreviewFileFilesPreviewGet,
 } from "@/api/generated/files/files";
+```
+
+---
+
+## URL Getter Functions
+
+In addition to the React Query hooks, Orval generates URL getter functions that return the endpoint path. These are useful for manual fetch calls (e.g., file downloads):
+
+```typescript
+// Generate download URL for merged PDF
+getDownloadMergedPdfFilesProjectsProjectIdMergedPdfDownloadGetUrl(projectId: number)
+// Returns: "/files/projects/{projectId}/merged-pdf/download"
+```
+
+**Usage Example:**
+
+```typescript
+const handleDownload = async () => {
+	const baseUrl = import.meta.env.VITE_API_BASE_URL;
+	const downloadPath =
+		getDownloadMergedPdfFilesProjectsProjectIdMergedPdfDownloadGetUrl(
+			projectId,
+		);
+
+	const response = await fetch(`${baseUrl}${downloadPath}`, {
+		headers: { "ngrok-skip-browser-warning": "true" },
+	});
+
+	const blob = await response.blob();
+	const url = URL.createObjectURL(blob);
+	// Create download link...
+};
 ```
 
 ---

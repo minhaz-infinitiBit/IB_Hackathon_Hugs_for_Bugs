@@ -1,3 +1,4 @@
+import { getDownloadMergedPdfFilesProjectsProjectIdMergedPdfDownloadGetUrl } from "@/api/generated/files/files";
 import { Button } from "@/components/ui/button";
 import {
 	ChevronLeft,
@@ -8,7 +9,7 @@ import {
 	ZoomIn,
 	ZoomOut,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -18,7 +19,7 @@ import { toast } from "sonner";
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 interface MergedDocumentViewerProps {
-	pdfUrl: string | null;
+	pdfUrl: string | null; // This is the preview_url from API
 	isLoading?: boolean;
 	projectId: number;
 }
@@ -32,6 +33,64 @@ export function MergedDocumentViewer({
 	const [pageNumber, setPageNumber] = useState(1);
 	const [scale, setScale] = useState(1.0);
 	const [isDownloading, setIsDownloading] = useState(false);
+	const [blobUrl, setBlobUrl] = useState<string | null>(null);
+	const [isFetchingPdf, setIsFetchingPdf] = useState(false);
+	const [fetchError, setFetchError] = useState<string | null>(null);
+	const blobUrlRef = useRef<string | null>(null);
+
+	// Fetch PDF as blob to avoid ngrok interstitial
+	useEffect(() => {
+		if (!pdfUrl) return;
+
+		// Avoid refetching if we already have a blob URL for this pdfUrl
+		if (blobUrlRef.current) return;
+
+		const fetchPdf = async () => {
+			setIsFetchingPdf(true);
+			setFetchError(null);
+
+			try {
+				const baseUrl =
+					import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ||
+					"http://localhost:8000";
+				const fullUrl = `${baseUrl}${pdfUrl}`;
+
+				const response = await fetch(fullUrl, {
+					headers: {
+						"ngrok-skip-browser-warning": "true",
+					},
+				});
+
+				if (!response.ok) {
+					throw new Error(
+						`Failed to fetch merged PDF (status: ${response.status})`,
+					);
+				}
+
+				const blob = await response.blob();
+
+				const url = URL.createObjectURL(blob);
+				blobUrlRef.current = url;
+				setBlobUrl(url);
+			} catch (err) {
+				setFetchError(
+					err instanceof Error ? err.message : "Failed to load PDF",
+				);
+			} finally {
+				setIsFetchingPdf(false);
+			}
+		};
+
+		fetchPdf();
+
+		// Cleanup on unmount
+		return () => {
+			if (blobUrlRef.current) {
+				URL.revokeObjectURL(blobUrlRef.current);
+				blobUrlRef.current = null;
+			}
+		};
+	}, [pdfUrl]);
 
 	function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
 		setNumPages(numPages);
@@ -42,10 +101,18 @@ export function MergedDocumentViewer({
 		setIsDownloading(true);
 		try {
 			const baseUrl =
-				import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-			const response = await fetch(
-				`${baseUrl}/files/projects/${projectId}/merged-pdf/download`,
-			);
+				import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ||
+				"http://localhost:8000";
+			const downloadPath =
+				getDownloadMergedPdfFilesProjectsProjectIdMergedPdfDownloadGetUrl(
+					projectId,
+				);
+			const response = await fetch(`${baseUrl}${downloadPath}`, {
+				headers: {
+					"ngrok-skip-browser-warning": "true",
+					Accept: "application/pdf",
+				},
+			});
 
 			if (!response.ok) {
 				throw new Error("Failed to download merged PDF");
@@ -71,7 +138,7 @@ export function MergedDocumentViewer({
 		}
 	};
 
-	if (isLoading) {
+	if (isLoading || isFetchingPdf) {
 		return (
 			<div className="rounded-lg border border-gray-800 bg-gray-950/50 h-[600px] flex items-center justify-center">
 				<Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
@@ -79,7 +146,18 @@ export function MergedDocumentViewer({
 		);
 	}
 
-	if (!pdfUrl) {
+	if (fetchError) {
+		return (
+			<div className="rounded-lg border border-gray-800 bg-gray-950/50 h-[600px] flex flex-col items-center justify-center gap-4">
+				<FileText className="w-16 h-16 text-red-500" />
+				<p className="text-red-400 font-mono text-center">
+					{fetchError}
+				</p>
+			</div>
+		);
+	}
+
+	if (!pdfUrl || !blobUrl) {
 		return (
 			<div className="rounded-lg border border-gray-800 bg-gray-950/50 h-[600px] flex flex-col items-center justify-center gap-4">
 				<FileText className="w-16 h-16 text-gray-600" />
@@ -121,7 +199,7 @@ export function MergedDocumentViewer({
 			{/* PDF Viewer */}
 			<div className="h-[500px] overflow-auto flex justify-center bg-gray-900 p-4">
 				<Document
-					file={pdfUrl}
+					file={blobUrl}
 					onLoadSuccess={onDocumentLoadSuccess}
 					loading={
 						<div className="flex items-center justify-center h-full">
