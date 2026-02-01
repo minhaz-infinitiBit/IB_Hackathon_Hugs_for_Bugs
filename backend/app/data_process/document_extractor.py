@@ -49,6 +49,22 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 
+def get_best_device() -> str:
+    """
+    Detect and return the best available device for processing.
+    
+    Returns:
+        'cuda' if CUDA is available, otherwise 'cpu'
+    """
+    try:
+        import torch
+        if torch.cuda.is_available():
+            return "cuda"
+    except ImportError:
+        pass
+    return "cpu"
+
+
 # Supported file extensions
 PDF_EXTENSIONS = {'.pdf'}
 IMAGE_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.tiff', '.bmp'}
@@ -115,7 +131,7 @@ class DocumentExtractor:
     
     def __init__(
         self, 
-        device: str = "cpu",
+        device: Optional[str] = None,
         enable_image_description: bool = False,
         enable_formula_enrichment: bool = True,
         enable_code_enrichment: bool = True,
@@ -126,14 +142,16 @@ class DocumentExtractor:
         Initialize the DocumentExtractor.
         
         Args:
-            device: Device string (e.g., "cpu", "cuda:0", "mps" for Apple Silicon)
+            device: Device string (e.g., "cpu", "cuda", "cuda:0", "mps" for Apple Silicon).
+                    If None, auto-detects best available device (CUDA if available, else CPU).
             enable_image_description: Enable SmolVLM image description generation
             enable_formula_enrichment: Enable formula/math enrichment
             enable_code_enrichment: Enable code block enrichment
             enable_table_structure: Enable table structure recognition for better tables
             max_pages: Maximum number of pages to extract (default: 4). Set to 0 or None for no limit.
         """
-        self.device = device
+        # Auto-detect device if not specified
+        self.device = device if device is not None else get_best_device()
         self.enable_image_description = enable_image_description
         self._converter: Optional[DocumentConverter] = None
         self._initialized = False
@@ -146,6 +164,8 @@ class DocumentExtractor:
         
         # LibreOffice executable cache
         self._libreoffice_exe: Optional[str] = None
+        
+        logger.info(f"DocumentExtractor configured to use device: {self.device}")
         
     def _initialize_converter(self) -> None:
         """Lazily initialize the Docling document converter."""
@@ -852,13 +872,13 @@ class DocumentExtractor:
 
 
 # Convenience function for simple usage
-def extract_document(file_path: str, device: str = "cpu", max_pages: int = 4) -> ExtractionResult:
+def extract_document(file_path: str, device: Optional[str] = None, max_pages: int = 4) -> ExtractionResult:
     """
     Convenience function to extract content from a document.
     
     Args:
         file_path: Path to the document file
-        device: Device to use (cpu, cuda:0, mps)
+        device: Device to use (cpu, cuda, cuda:0, mps). If None, auto-detects best available device.
         max_pages: Maximum number of pages to extract (default: 4). Set to 0 or None for no limit.
         
     Returns:
