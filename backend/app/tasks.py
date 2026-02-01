@@ -4,8 +4,10 @@ from .celery_worker import celery_app
 from app.core.database import get_db
 from app.models.files import Project, RunStatus, File
 from app.services.preprocess_document import DocumentPreprocessService
+from app.services.classification_service import ClassificationService
 
 document_processing_service = DocumentPreprocessService()
+classification_service = ClassificationService()
 redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 
 def publish_status(project_id: int, status: str, message: str = "", progress: int = 0):
@@ -33,7 +35,8 @@ def document_processing(project_id: int):
 
         files = db.query(File).filter(File.project_id == project_id).all()
         total = len(files)
-
+        
+        summary_list = []
         for idx, file in enumerate(files, 1):
             publish_status(project_id, "processing", f"Processing file {idx}/{total}: {file.file_path}", int((idx - 1) / total * 100))
 
@@ -53,9 +56,17 @@ def document_processing(project_id: int):
                 "structured_content": result.structured_content,
                 "summary": result.summary,
             }
-            file.summary_json = str(summary_json)
-            db.commit()
+            
+            summary_list.append(summary_json)
             publish_status(project_id, "processing", f"Completed file {idx}/{total}", int(idx / total * 100))
+        
+        result = classification_service.classify_documents(summary_list)
+        print(result.success)
+        print(result.documents_processed)
+        print(result.documents_classified)
+        print(result.classifications)
+        print(result.output_file)
+        print(result.error_message)
 
         project.status = RunStatus.finished_processing
         db.commit()

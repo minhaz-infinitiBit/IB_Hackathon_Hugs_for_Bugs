@@ -30,9 +30,6 @@ async def upload_pdf(
 
     try:
         for file in files:
-            if file.content_type != "application/pdf":
-                raise HTTPException(status_code=400, detail=f"File {file.filename} must be a PDF")
-            
             file_location = f"{UPLOAD_DIR}/{file.filename}"
             
             with open(file_location, "wb+") as file_object:

@@ -29,7 +29,7 @@ _classification_results: List[Dict] = []
 def get_categories() -> str:
     """
     Get all available document categories.
-    
+
     Returns:
         JSON string with all categories
     """
@@ -37,7 +37,7 @@ def get_categories() -> str:
         if CATEGORIES_FILE.exists():
             with open(CATEGORIES_FILE, 'r', encoding='utf-8') as f:
                 categories = json.load(f)
-            
+
             # Return simplified category info for the agent
             simplified = []
             for cat in categories:
@@ -48,7 +48,7 @@ def get_categories() -> str:
                     "description": cat["description"],
                     "examples": cat["examples"]
                 })
-            
+
             return json.dumps({
                 "success": True,
                 "total_categories": len(simplified),
@@ -76,21 +76,21 @@ def classify_document(
 ) -> str:
     """
     Classify a document into a category and store in memory.
-    
+
     Args:
         file_name: Name of the document file
         category_id: Category ID (1-20)
         confidence: Classification confidence (0.0 to 1.0)
         reasoning: Brief explanation for the classification
-        
+
     Returns:
         JSON string with classification result
     """
     global _classification_results
-    
+
     # Import here to avoid circular imports
     from ..memory import get_memory_manager
-    
+
     try:
         # Validate category ID
         if not 1 <= category_id <= 20:
@@ -98,11 +98,11 @@ def classify_document(
                 "success": False,
                 "error": f"Invalid category_id {category_id}. Must be between 1 and 20."
             })
-        
+
         # Load categories to get names
         category_name = ""
         category_english = ""
-        
+
         if CATEGORIES_FILE.exists():
             with open(CATEGORIES_FILE, 'r', encoding='utf-8') as f:
                 categories = json.load(f)
@@ -111,7 +111,7 @@ def classify_document(
                     category_name = cat["category_german"]
                     category_english = cat["english_translation"]
                     break
-        
+
         # Create classification result
         result = {
             "id": len(_classification_results) + 1,
@@ -123,27 +123,27 @@ def classify_document(
             "reasoning": reasoning,
             "classified_at": datetime.now().isoformat()
         }
-        
+
         # Store in results
         _classification_results.append(result)
-        
-        # Store in memory
+
+        # Store in memory (uses update to handle re-classifications)
         memory = get_memory_manager()
-        memory.add_classification_result(
+        memory.update_classification(
             file_name=file_name,
             category_id=category_id,
             category_name=category_name,
             confidence=confidence,
             reasoning=reasoning
         )
-        
+
         logger.info(f"Classified '{file_name}' as category {category_id} ({category_name})")
-        
+
         return json.dumps({
             "success": True,
             "classification": result
         }, indent=2, ensure_ascii=False)
-        
+
     except Exception as e:
         logger.error(f"Error classifying document: {e}")
         return json.dumps({
@@ -156,22 +156,22 @@ def classify_document(
 def save_classification_results(output_path: str = None) -> str:
     """
     Save all classification results to a file.
-    
+
     Args:
         output_path: Optional path for output file
-        
+
     Returns:
         JSON string with save status
     """
     global _classification_results
-    
+
     try:
         if not _classification_results:
             return json.dumps({
                 "success": False,
                 "error": "No classification results to save"
             })
-        
+
         # Default output path
         if not output_path:
             output_dir = Path(__file__).parent.parent.parent / "output"
@@ -180,7 +180,7 @@ def save_classification_results(output_path: str = None) -> str:
             output_path = output_dir / f"classification_results_{timestamp}.json"
         else:
             output_path = Path(output_path)
-        
+
         # Organize results by category
         by_category = {}
         for result in _classification_results:
@@ -198,7 +198,7 @@ def save_classification_results(output_path: str = None) -> str:
                 "confidence": result["confidence"],
                 "reasoning": result["reasoning"]
             })
-        
+
         # Create output structure
         output_data = {
             "classification_summary": {
@@ -209,20 +209,20 @@ def save_classification_results(output_path: str = None) -> str:
             "results_by_category": list(by_category.values()),
             "results_ordered": _classification_results
         }
-        
+
         # Save to file
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(output_data, f, indent=2, ensure_ascii=False)
-        
+
         logger.info(f"Saved classification results to: {output_path}")
-        
+
         return json.dumps({
             "success": True,
             "output_file": str(output_path),
             "total_documents": len(_classification_results),
             "categories_used": len(by_category)
         }, indent=2)
-        
+
     except Exception as e:
         logger.error(f"Error saving classification results: {e}")
         return json.dumps({
@@ -235,26 +235,26 @@ def save_classification_results(output_path: str = None) -> str:
 def get_classification_history(limit: int = 10) -> str:
     """
     Get recent classification history from memory.
-    
+
     Args:
         limit: Maximum number of history entries to retrieve
-        
+
     Returns:
         JSON string with classification history
     """
     # Import here to avoid circular imports
     from ..memory import get_memory_manager
-    
+
     try:
         memory = get_memory_manager()
         history = memory.get_recent_memories(limit=limit, memory_type="classification")
-        
+
         return json.dumps({
             "success": True,
             "history_count": len(history),
             "history": history
         }, indent=2, ensure_ascii=False)
-        
+
     except Exception as e:
         logger.error(f"Error getting classification history: {e}")
         return json.dumps({
@@ -305,3 +305,4 @@ CLASSIFIER_TOOLS = [
     save_classification_results,
     get_classification_history
 ]
+ 
