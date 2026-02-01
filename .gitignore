@@ -99,19 +99,9 @@ backend/app/data/uploads
 ./backend/app/data/merged 
 backend/app/data/merged
 uploads/
-merged/
-
-# extra
-data-preprocess-pipeline-main/
-graphbit_agent/
-project_desctiption.txt
-
+output/
 files/
-backend/output/
-graphbit_agent/
-sql_app.db
-uploads/
-
+data-preprocess-pipeline-main/
 
 # ================================
 # Node.js / Frontend
