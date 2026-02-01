@@ -120,6 +120,7 @@ class DocumentExtractor:
         enable_formula_enrichment: bool = True,
         enable_code_enrichment: bool = True,
         enable_table_structure: bool = True,
+        max_pages: int = 4,
     ):
         """
         Initialize the DocumentExtractor.
@@ -130,6 +131,7 @@ class DocumentExtractor:
             enable_formula_enrichment: Enable formula/math enrichment
             enable_code_enrichment: Enable code block enrichment
             enable_table_structure: Enable table structure recognition for better tables
+            max_pages: Maximum number of pages to extract (default: 4). Set to 0 or None for no limit.
         """
         self.device = device
         self.enable_image_description = enable_image_description
@@ -140,6 +142,7 @@ class DocumentExtractor:
         self._enable_formula_enrichment = enable_formula_enrichment
         self._enable_code_enrichment = enable_code_enrichment
         self._enable_table_structure = enable_table_structure
+        self._max_pages = max_pages if max_pages and max_pages > 0 else None
         
         # LibreOffice executable cache
         self._libreoffice_exe: Optional[str] = None
@@ -257,11 +260,18 @@ class DocumentExtractor:
             conversion_result = self._converter.convert(file_path)
             doc = conversion_result.document
             
-            # Extract page contents
+            # Extract page contents (limited to max_pages if set)
             page_contents = []
             page_numbers = []
+            total_pages = len(doc.pages)
+            pages_to_process = list(doc.pages.values())
             
-            for page in doc.pages.values():
+            # Limit to max_pages if configured
+            if self._max_pages and len(pages_to_process) > self._max_pages:
+                pages_to_process = pages_to_process[:self._max_pages]
+                logger.info(f"Limiting extraction to {self._max_pages} pages (document has {total_pages} pages)")
+            
+            for page in pages_to_process:
                 page_no = page.page_no
                 page_numbers.append(page_no)
                 
@@ -295,11 +305,13 @@ class DocumentExtractor:
             cleaned_page_contents = [self._clean_content(pc) for pc in page_contents]
             
             # Build metadata
+            pages_extracted = len(page_contents)
             metadata = {
                 "file_name": file_path.name,
                 "file_path": str(file_path),
                 "file_type": file_path.suffix,
-                "page_count": len(doc.pages),
+                "page_count": total_pages,
+                "pages_extracted": pages_extracted,
                 "image_count": len(doc.pictures),
                 "table_count": len(doc.tables),
                 "extracted_at": datetime.now().isoformat(),
@@ -312,7 +324,7 @@ class DocumentExtractor:
             
             logger.info(
                 f"Successfully extracted '{file_path.name}': "
-                f"{metadata['page_count']} pages, "
+                f"{pages_extracted}/{total_pages} pages, "
                 f"{metadata['image_count']} images, "
                 f"{metadata['table_count']} tables"
             )
@@ -840,16 +852,17 @@ class DocumentExtractor:
 
 
 # Convenience function for simple usage
-def extract_document(file_path: str, device: str = "cpu") -> ExtractionResult:
+def extract_document(file_path: str, device: str = "cpu", max_pages: int = 4) -> ExtractionResult:
     """
     Convenience function to extract content from a document.
     
     Args:
         file_path: Path to the document file
         device: Device to use (cpu, cuda:0, mps)
+        max_pages: Maximum number of pages to extract (default: 4). Set to 0 or None for no limit.
         
     Returns:
         ExtractionResult with extracted content
     """
-    extractor = DocumentExtractor(device=device)
+    extractor = DocumentExtractor(device=device, max_pages=max_pages)
     return extractor.extract(file_path)
