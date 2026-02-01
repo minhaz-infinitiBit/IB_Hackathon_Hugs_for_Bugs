@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import {
 	ChevronLeft,
 	ChevronRight,
+	Download,
 	FileText,
 	Loader2,
 	ZoomIn,
@@ -11,6 +12,7 @@ import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
+import { toast } from "sonner";
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
@@ -18,20 +20,56 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 interface MergedDocumentViewerProps {
 	pdfUrl: string | null;
 	isLoading?: boolean;
+	projectId: number;
 }
 
 export function MergedDocumentViewer({
 	pdfUrl,
 	isLoading,
+	projectId,
 }: MergedDocumentViewerProps) {
 	const [numPages, setNumPages] = useState<number | null>(null);
 	const [pageNumber, setPageNumber] = useState(1);
 	const [scale, setScale] = useState(1.0);
+	const [isDownloading, setIsDownloading] = useState(false);
 
 	function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
 		setNumPages(numPages);
 		setPageNumber(1);
 	}
+
+	const handleDownload = async () => {
+		setIsDownloading(true);
+		try {
+			const baseUrl =
+				import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+			const response = await fetch(
+				`${baseUrl}/files/projects/${projectId}/merged-pdf/download`,
+			);
+
+			if (!response.ok) {
+				throw new Error("Failed to download merged PDF");
+			}
+
+			const blob = await response.blob();
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement("a");
+			link.href = url;
+			link.download = `merged-document-project-${projectId}.pdf`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			URL.revokeObjectURL(url);
+
+			toast.success("Download started!");
+		} catch (error) {
+			toast.error("Failed to download merged PDF", {
+				description: String(error),
+			});
+		} finally {
+			setIsDownloading(false);
+		}
+	};
 
 	if (isLoading) {
 		return (
@@ -121,6 +159,26 @@ export function MergedDocumentViewer({
 					</Button>
 				</div>
 			)}
+
+			{/* Download Button */}
+			<div className="p-4 border-t border-gray-800">
+				<Button
+					onClick={handleDownload}
+					disabled={isDownloading}
+					className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-bold">
+					{isDownloading ? (
+						<>
+							<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+							Downloading...
+						</>
+					) : (
+						<>
+							<Download className="w-4 h-4 mr-2" />
+							Download Merged PDF
+						</>
+					)}
+				</Button>
+			</div>
 		</div>
 	);
 }

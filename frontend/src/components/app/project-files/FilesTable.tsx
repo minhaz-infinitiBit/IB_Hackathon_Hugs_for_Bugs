@@ -13,47 +13,62 @@ import {
 	useReactTable,
 	type ColumnDef,
 } from "@tanstack/react-table";
-import { FileText } from "lucide-react";
+import { FileText, Sparkles } from "lucide-react";
 
-// Column definitions
-const columns: ColumnDef<PDFUploadResponse>[] = [
-	{
-		accessorKey: "filename",
-		header: "Filename",
-		cell: ({ row }) => (
-			<div className="flex items-center gap-2">
-				<FileText className="w-4 h-4 text-cyan-400" />
-				<span className="font-medium text-white">
-					{row.getValue("filename")}
+// Helper to create columns with newFileIds context
+function createColumns(newFileIds: string[]): ColumnDef<PDFUploadResponse>[] {
+	return [
+		{
+			accessorKey: "filename",
+			header: "Filename",
+			cell: ({ row }) => {
+				const location = row.original.location;
+				const isNew = newFileIds.includes(location);
+				return (
+					<div className="flex items-center gap-2">
+						<FileText className="w-4 h-4 text-cyan-400" />
+						<span className="font-medium text-white">
+							{row.getValue("filename")}
+						</span>
+						{isNew && (
+							<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+								<Sparkles className="w-3 h-3" />
+								NEW
+							</span>
+						)}
+					</div>
+				);
+			},
+		},
+		{
+			accessorKey: "content_type",
+			header: "Type",
+			cell: ({ row }) => (
+				<span className="font-mono text-xs text-gray-400">
+					{row.getValue("content_type")}
 				</span>
-			</div>
-		),
-	},
-	{
-		accessorKey: "content_type",
-		header: "Type",
-		cell: ({ row }) => (
-			<span className="font-mono text-xs text-gray-400">
-				{row.getValue("content_type")}
-			</span>
-		),
-	},
-	{
-		accessorKey: "message",
-		header: "Status",
-		cell: ({ row }) => (
-			<span className="px-2 py-1 rounded-full text-xs font-mono bg-green-900/50 text-green-400">
-				{row.getValue("message")}
-			</span>
-		),
-	},
-];
+			),
+		},
+		{
+			accessorKey: "message",
+			header: "Status",
+			cell: ({ row }) => (
+				<span className="px-2 py-1 rounded-full text-xs font-mono bg-green-900/50 text-green-400">
+					{row.getValue("message")}
+				</span>
+			),
+		},
+	];
+}
 
 interface FilesTableProps {
 	data: PDFUploadResponse[];
+	newFileIds?: string[];
 }
 
-export function FilesTable({ data }: FilesTableProps) {
+export function FilesTable({ data, newFileIds = [] }: FilesTableProps) {
+	const columns = createColumns(newFileIds);
+
 	const table = useReactTable({
 		data,
 		columns,

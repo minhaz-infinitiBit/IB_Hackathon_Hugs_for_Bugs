@@ -1,4 +1,7 @@
-import { createContext, useContext, type ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+import { createContext, useContext, useState, type ReactNode } from "react";
+import { UploadMoreModal } from "./UploadMoreModal";
 
 interface ProjectDetailsContextValue {
 	projectId: number;
@@ -34,15 +37,34 @@ export function ProjectDetails({ projectId, children }: ProjectDetailsProps) {
 // Sub-components
 ProjectDetails.Header = function Header() {
 	const { projectId } = useProjectDetailsContext();
+	const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
 	return (
-		<div className="mb-8">
-			<h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 font-clash mb-2">
-				📋 Project Details
-			</h1>
-			<p className="text-gray-400 font-mono text-sm">
-				Project ID: <span className="text-cyan-400">{projectId}</span>
-			</p>
-		</div>
+		<>
+			<div className="mb-8 flex items-start justify-between">
+				<div>
+					<h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 font-clash mb-2">
+						📋 Project Details
+					</h1>
+					<p className="text-gray-400 font-mono text-sm">
+						Project ID:{" "}
+						<span className="text-cyan-400">{projectId}</span>
+					</p>
+				</div>
+				<Button
+					onClick={() => setIsUploadModalOpen(true)}
+					className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold">
+					<Upload className="w-4 h-4 mr-2" />
+					Upload More Documents
+				</Button>
+			</div>
+
+			<UploadMoreModal
+				isOpen={isUploadModalOpen}
+				onClose={() => setIsUploadModalOpen(false)}
+				projectId={projectId}
+			/>
+		</>
 	);
 };
 

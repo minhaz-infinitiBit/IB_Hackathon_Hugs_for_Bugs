@@ -9,6 +9,7 @@ export interface ProjectResponse {
   id: number;
   project_name: string;
   status: string;
+  merged_pdf_path?: string | null;
   created_at: string;
   updated_at: string;
 }

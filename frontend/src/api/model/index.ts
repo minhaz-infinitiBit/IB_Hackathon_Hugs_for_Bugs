@@ -6,10 +6,17 @@
  */
 
 export * from './bodyCreateProjectFilesProjectsPost';
+export * from './bodyUpdateFileCategoryFilesProjectsProjectIdFilesFileIdCategoryPut';
 export * from './bodyUploadPdfFilesUploadPdfProjectIdPost';
 export * from './getProjectClassificationsFilesProjectsProjectIdClassificationsGetParams';
 export * from './hTTPValidationError';
 export * from './listProjectsFilesProjectsGetParams';
 export * from './pDFUploadResponse';
+export * from './previewFileFilesPreviewGetParams';
+export * from './projectMemoryResponse';
+export * from './projectMemoryResponseClassificationsItem';
 export * from './projectResponse';
+export * from './reclassificationRequest';
+export * from './reclassificationResponse';
+export * from './reclassificationResultItem';
 export * from './validationError';

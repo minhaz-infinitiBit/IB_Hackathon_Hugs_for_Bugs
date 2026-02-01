@@ -17,13 +17,29 @@ import {
 } from "@/components/app/project-files";
 import { createFileRoute } from "@tanstack/react-router";
 
+export interface DocumentUploadSearch {
+	newFileIds?: string;
+}
+
 export const Route = createFileRoute("/app/$projectId/document-upload")({
 	component: ProjectDocumentUploadPage,
+	validateSearch: (
+		search: Record<string, unknown>,
+	): DocumentUploadSearch => ({
+		newFileIds:
+			typeof search.newFileIds === "string"
+				? search.newFileIds
+				: undefined,
+	}),
 });
 
 function ProjectDocumentUploadPage() {
 	const { projectId } = Route.useParams();
+	const { newFileIds: newFileIdsParam } = Route.useSearch();
 	const numericProjectId = Number(projectId);
+
+	// Parse newFileIds from comma-separated string
+	const newFileIds = newFileIdsParam ? newFileIdsParam.split(",") : [];
 
 	// Fetch files for this project
 	const { data, isLoading, error } =
@@ -54,8 +70,13 @@ function ProjectDocumentUploadPage() {
 				</div>
 			)}
 
-			{/* Files table */}
-			{!isLoading && !error && <FilesTable data={files} />}
+			{/* Files table with NEW badge support */}
+			{!isLoading && !error && (
+				<FilesTable
+					data={files}
+					newFileIds={newFileIds}
+				/>
+			)}
 
 			{/* Actions */}
 			<ProjectFiles.Actions>
