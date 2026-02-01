@@ -13,7 +13,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:///./sql_app.db
+      - DATABASE_URL=sqlite:////app/db/sql_app.db
       - REDIS_URL=redis://redis:6379/0
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
@@ -22,6 +22,7 @@ services:
     volumes:
       - backend_data:/app/app/data
       - backend_output:/app/output
+      - backend_db:/app/db
       - ./backend/app:/app/app  # For development hot-reload
     depends_on:
       - redis
@@ -45,7 +46,7 @@ services:
     restart: unless-stopped
     command: celery -A app.celery_worker.celery_app worker --loglevel=info --concurrency=2
     environment:
-      - DATABASE_URL=sqlite:///./sql_app.db
+      - DATABASE_URL=sqlite:////app/db/sql_app.db
       - REDIS_URL=redis://redis:6379/0
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
@@ -54,6 +55,7 @@ services:
     volumes:
       - backend_data:/app/app/data
       - backend_output:/app/output
+      - backend_db:/app/db
     depends_on:
       - redis
       - qdrant
@@ -113,13 +115,13 @@ services:
     container_name: hugs_frontend
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - "3000:3000"
     depends_on:
       - backend
     networks:
       - hugs_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -131,5 +133,6 @@ networks:
 volumes:
   backend_data:
   backend_output:
+  backend_db:
   redis_data:
   qdrant_data:
