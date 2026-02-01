@@ -26,6 +26,7 @@ import type {
 import type {
   BodyCreateProjectFilesProjectsPost,
   BodyUploadPdfFilesUploadPdfProjectIdPost,
+  GetProjectClassificationsFilesProjectsProjectIdClassificationsGetParams,
   HTTPValidationError,
   ListProjectsFilesProjectsGetParams,
   PDFUploadResponse,
@@ -452,6 +453,467 @@ export function useListProjectFilesFilesProjectsProjectIdFilesGet<TData = Awaite
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getListProjectFilesFilesProjectsProjectIdFilesGetQueryOptions(projectId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * @summary Process Project
+ */
+export type processProjectFilesProcessProjectProjectIdPostResponse200 = {
+  data: unknown
+  status: 200
+}
+
+export type processProjectFilesProcessProjectProjectIdPostResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type processProjectFilesProcessProjectProjectIdPostResponseSuccess = (processProjectFilesProcessProjectProjectIdPostResponse200) & {
+  headers: Headers;
+};
+export type processProjectFilesProcessProjectProjectIdPostResponseError = (processProjectFilesProcessProjectProjectIdPostResponse422) & {
+  headers: Headers;
+};
+
+export type processProjectFilesProcessProjectProjectIdPostResponse = (processProjectFilesProcessProjectProjectIdPostResponseSuccess | processProjectFilesProcessProjectProjectIdPostResponseError)
+
+export const getProcessProjectFilesProcessProjectProjectIdPostUrl = (projectId: number,) => {
+
+
+  
+
+  return `/files/process-project/${projectId}`
+}
+
+export const processProjectFilesProcessProjectProjectIdPost = async (projectId: number, options?: RequestInit): Promise<processProjectFilesProcessProjectProjectIdPostResponse> => {
+  
+  return customInstance<processProjectFilesProcessProjectProjectIdPostResponse>(getProcessProjectFilesProcessProjectProjectIdPostUrl(projectId),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+
+export const getProcessProjectFilesProcessProjectProjectIdPostMutationOptions = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof processProjectFilesProcessProjectProjectIdPost>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+): UseMutationOptions<Awaited<ReturnType<typeof processProjectFilesProcessProjectProjectIdPost>>, TError,{projectId: number}, TContext> => {
+
+const mutationKey = ['processProjectFilesProcessProjectProjectIdPost'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof processProjectFilesProcessProjectProjectIdPost>>, {projectId: number}> = (props) => {
+          const {projectId} = props ?? {};
+
+          return  processProjectFilesProcessProjectProjectIdPost(projectId,requestOptions)
+        }
+
+
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ProcessProjectFilesProcessProjectProjectIdPostMutationResult = NonNullable<Awaited<ReturnType<typeof processProjectFilesProcessProjectProjectIdPost>>>
+    
+    export type ProcessProjectFilesProcessProjectProjectIdPostMutationError = HTTPValidationError
+
+    /**
+ * @summary Process Project
+ */
+export const useProcessProjectFilesProcessProjectProjectIdPost = <TError = HTTPValidationError,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof processProjectFilesProcessProjectProjectIdPost>>, TError,{projectId: number}, TContext>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof processProjectFilesProcessProjectProjectIdPost>>,
+        TError,
+        {projectId: number},
+        TContext
+      > => {
+      return useMutation(getProcessProjectFilesProcessProjectProjectIdPostMutationOptions(options), queryClient);
+    }
+    /**
+ * Get the classification ordering results for a project.
+Returns the documents organized by category after classification is complete.
+Built dynamically from File records.
+ * @summary Get Project Ordering
+ */
+export type getProjectOrderingFilesProjectsProjectIdOrderingGetResponse200 = {
+  data: unknown
+  status: 200
+}
+
+export type getProjectOrderingFilesProjectsProjectIdOrderingGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getProjectOrderingFilesProjectsProjectIdOrderingGetResponseSuccess = (getProjectOrderingFilesProjectsProjectIdOrderingGetResponse200) & {
+  headers: Headers;
+};
+export type getProjectOrderingFilesProjectsProjectIdOrderingGetResponseError = (getProjectOrderingFilesProjectsProjectIdOrderingGetResponse422) & {
+  headers: Headers;
+};
+
+export type getProjectOrderingFilesProjectsProjectIdOrderingGetResponse = (getProjectOrderingFilesProjectsProjectIdOrderingGetResponseSuccess | getProjectOrderingFilesProjectsProjectIdOrderingGetResponseError)
+
+export const getGetProjectOrderingFilesProjectsProjectIdOrderingGetUrl = (projectId: number,) => {
+
+
+  
+
+  return `/files/projects/${projectId}/ordering`
+}
+
+export const getProjectOrderingFilesProjectsProjectIdOrderingGet = async (projectId: number, options?: RequestInit): Promise<getProjectOrderingFilesProjectsProjectIdOrderingGetResponse> => {
+  
+  return customInstance<getProjectOrderingFilesProjectsProjectIdOrderingGetResponse>(getGetProjectOrderingFilesProjectsProjectIdOrderingGetUrl(projectId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetProjectOrderingFilesProjectsProjectIdOrderingGetQueryKey = (projectId: number,) => {
+    return [
+    `/files/projects/${projectId}/ordering`
+    ] as const;
+    }
+
+    
+export const getGetProjectOrderingFilesProjectsProjectIdOrderingGetQueryOptions = <TData = Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>, TError = HTTPValidationError>(projectId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProjectOrderingFilesProjectsProjectIdOrderingGetQueryKey(projectId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>> = ({ signal }) => getProjectOrderingFilesProjectsProjectIdOrderingGet(projectId, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(projectId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProjectOrderingFilesProjectsProjectIdOrderingGetQueryResult = NonNullable<Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>>
+export type GetProjectOrderingFilesProjectsProjectIdOrderingGetQueryError = HTTPValidationError
+
+
+export function useGetProjectOrderingFilesProjectsProjectIdOrderingGet<TData = Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>, TError = HTTPValidationError>(
+ projectId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProjectOrderingFilesProjectsProjectIdOrderingGet<TData = Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>, TError = HTTPValidationError>(
+ projectId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProjectOrderingFilesProjectsProjectIdOrderingGet<TData = Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>, TError = HTTPValidationError>(
+ projectId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Project Ordering
+ */
+
+export function useGetProjectOrderingFilesProjectsProjectIdOrderingGet<TData = Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>, TError = HTTPValidationError>(
+ projectId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectOrderingFilesProjectsProjectIdOrderingGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProjectOrderingFilesProjectsProjectIdOrderingGetQueryOptions(projectId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * Get classification results for files in a project.
+Optionally filter by category_id.
+ * @summary Get Project Classifications
+ */
+export type getProjectClassificationsFilesProjectsProjectIdClassificationsGetResponse200 = {
+  data: unknown
+  status: 200
+}
+
+export type getProjectClassificationsFilesProjectsProjectIdClassificationsGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getProjectClassificationsFilesProjectsProjectIdClassificationsGetResponseSuccess = (getProjectClassificationsFilesProjectsProjectIdClassificationsGetResponse200) & {
+  headers: Headers;
+};
+export type getProjectClassificationsFilesProjectsProjectIdClassificationsGetResponseError = (getProjectClassificationsFilesProjectsProjectIdClassificationsGetResponse422) & {
+  headers: Headers;
+};
+
+export type getProjectClassificationsFilesProjectsProjectIdClassificationsGetResponse = (getProjectClassificationsFilesProjectsProjectIdClassificationsGetResponseSuccess | getProjectClassificationsFilesProjectsProjectIdClassificationsGetResponseError)
+
+export const getGetProjectClassificationsFilesProjectsProjectIdClassificationsGetUrl = (projectId: number,
+    params?: GetProjectClassificationsFilesProjectsProjectIdClassificationsGetParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/files/projects/${projectId}/classifications?${stringifiedParams}` : `/files/projects/${projectId}/classifications`
+}
+
+export const getProjectClassificationsFilesProjectsProjectIdClassificationsGet = async (projectId: number,
+    params?: GetProjectClassificationsFilesProjectsProjectIdClassificationsGetParams, options?: RequestInit): Promise<getProjectClassificationsFilesProjectsProjectIdClassificationsGetResponse> => {
+  
+  return customInstance<getProjectClassificationsFilesProjectsProjectIdClassificationsGetResponse>(getGetProjectClassificationsFilesProjectsProjectIdClassificationsGetUrl(projectId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetProjectClassificationsFilesProjectsProjectIdClassificationsGetQueryKey = (projectId: number,
+    params?: GetProjectClassificationsFilesProjectsProjectIdClassificationsGetParams,) => {
+    return [
+    `/files/projects/${projectId}/classifications`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+    
+export const getGetProjectClassificationsFilesProjectsProjectIdClassificationsGetQueryOptions = <TData = Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>, TError = HTTPValidationError>(projectId: number,
+    params?: GetProjectClassificationsFilesProjectsProjectIdClassificationsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProjectClassificationsFilesProjectsProjectIdClassificationsGetQueryKey(projectId,params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>> = ({ signal }) => getProjectClassificationsFilesProjectsProjectIdClassificationsGet(projectId,params, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(projectId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProjectClassificationsFilesProjectsProjectIdClassificationsGetQueryResult = NonNullable<Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>>
+export type GetProjectClassificationsFilesProjectsProjectIdClassificationsGetQueryError = HTTPValidationError
+
+
+export function useGetProjectClassificationsFilesProjectsProjectIdClassificationsGet<TData = Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>, TError = HTTPValidationError>(
+ projectId: number,
+    params: undefined |  GetProjectClassificationsFilesProjectsProjectIdClassificationsGetParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProjectClassificationsFilesProjectsProjectIdClassificationsGet<TData = Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>, TError = HTTPValidationError>(
+ projectId: number,
+    params?: GetProjectClassificationsFilesProjectsProjectIdClassificationsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProjectClassificationsFilesProjectsProjectIdClassificationsGet<TData = Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>, TError = HTTPValidationError>(
+ projectId: number,
+    params?: GetProjectClassificationsFilesProjectsProjectIdClassificationsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Project Classifications
+ */
+
+export function useGetProjectClassificationsFilesProjectsProjectIdClassificationsGet<TData = Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>, TError = HTTPValidationError>(
+ projectId: number,
+    params?: GetProjectClassificationsFilesProjectsProjectIdClassificationsGetParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectClassificationsFilesProjectsProjectIdClassificationsGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProjectClassificationsFilesProjectsProjectIdClassificationsGetQueryOptions(projectId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+/**
+ * Get all files for a specific project, grouped by their German category.
+Enforces that the project must be in 'finished_processing' status.
+ * @summary Get Project Grouped By Category
+ */
+export type getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetResponse200 = {
+  data: unknown
+  status: 200
+}
+
+export type getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetResponse422 = {
+  data: HTTPValidationError
+  status: 422
+}
+    
+export type getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetResponseSuccess = (getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetResponse200) & {
+  headers: Headers;
+};
+export type getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetResponseError = (getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetResponse422) & {
+  headers: Headers;
+};
+
+export type getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetResponse = (getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetResponseSuccess | getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetResponseError)
+
+export const getGetProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetUrl = (projectId: number,) => {
+
+
+  
+
+  return `/files/projects/${projectId}/grouped-by-category`
+}
+
+export const getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet = async (projectId: number, options?: RequestInit): Promise<getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetResponse> => {
+  
+  return customInstance<getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetResponse>(getGetProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetUrl(projectId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+
+
+export const getGetProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetQueryKey = (projectId: number,) => {
+    return [
+    `/files/projects/${projectId}/grouped-by-category`
+    ] as const;
+    }
+
+    
+export const getGetProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetQueryOptions = <TData = Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>, TError = HTTPValidationError>(projectId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetQueryKey(projectId);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>> = ({ signal }) => getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet(projectId, { signal, ...requestOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(projectId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetQueryResult = NonNullable<Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>>
+export type GetProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetQueryError = HTTPValidationError
+
+
+export function useGetProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet<TData = Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>, TError = HTTPValidationError>(
+ projectId: number, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet<TData = Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>, TError = HTTPValidationError>(
+ projectId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>,
+          TError,
+          Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>
+        > , 'initialData'
+      >, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet<TData = Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>, TError = HTTPValidationError>(
+ projectId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get Project Grouped By Category
+ */
+
+export function useGetProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet<TData = Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>, TError = HTTPValidationError>(
+ projectId: number, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGet>>, TError, TData>>, request?: SecondParameter<typeof customInstance>}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProjectGroupedByCategoryFilesProjectsProjectIdGroupedByCategoryGetQueryOptions(projectId,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

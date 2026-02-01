@@ -7,6 +7,7 @@
 
 export * from './bodyCreateProjectFilesProjectsPost';
 export * from './bodyUploadPdfFilesUploadPdfProjectIdPost';
+export * from './getProjectClassificationsFilesProjectsProjectIdClassificationsGetParams';
 export * from './hTTPValidationError';
 export * from './listProjectsFilesProjectsGetParams';
 export * from './pDFUploadResponse';

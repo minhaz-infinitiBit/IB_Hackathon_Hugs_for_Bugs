@@ -13,7 +13,8 @@ import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppDocumentUploadRouteImport } from './routes/app/document-upload'
-import { Route as AppProjectNameDocumentUploadRouteImport } from './routes/app/$projectName/document-upload'
+import { Route as AppProjectIdDocumentUploadRouteImport } from './routes/app/$projectId/document-upload'
+import { Route as AppProjectIdDetailsRouteImport } from './routes/app/$projectId/details'
 
 const AppRoute = AppRouteImport.update({
   id: '/app',
@@ -35,25 +36,32 @@ const AppDocumentUploadRoute = AppDocumentUploadRouteImport.update({
   path: '/document-upload',
   getParentRoute: () => AppRoute,
 } as any)
-const AppProjectNameDocumentUploadRoute =
-  AppProjectNameDocumentUploadRouteImport.update({
-    id: '/$projectName/document-upload',
-    path: '/$projectName/document-upload',
+const AppProjectIdDocumentUploadRoute =
+  AppProjectIdDocumentUploadRouteImport.update({
+    id: '/$projectId/document-upload',
+    path: '/$projectId/document-upload',
     getParentRoute: () => AppRoute,
   } as any)
+const AppProjectIdDetailsRoute = AppProjectIdDetailsRouteImport.update({
+  id: '/$projectId/details',
+  path: '/$projectId/details',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
   '/app/document-upload': typeof AppDocumentUploadRoute
   '/app/': typeof AppIndexRoute
-  '/app/$projectName/document-upload': typeof AppProjectNameDocumentUploadRoute
+  '/app/$projectId/details': typeof AppProjectIdDetailsRoute
+  '/app/$projectId/document-upload': typeof AppProjectIdDocumentUploadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/app/document-upload': typeof AppDocumentUploadRoute
   '/app': typeof AppIndexRoute
-  '/app/$projectName/document-upload': typeof AppProjectNameDocumentUploadRoute
+  '/app/$projectId/details': typeof AppProjectIdDetailsRoute
+  '/app/$projectId/document-upload': typeof AppProjectIdDocumentUploadRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -61,7 +69,8 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/app/document-upload': typeof AppDocumentUploadRoute
   '/app/': typeof AppIndexRoute
-  '/app/$projectName/document-upload': typeof AppProjectNameDocumentUploadRoute
+  '/app/$projectId/details': typeof AppProjectIdDetailsRoute
+  '/app/$projectId/document-upload': typeof AppProjectIdDocumentUploadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -70,20 +79,23 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/document-upload'
     | '/app/'
-    | '/app/$projectName/document-upload'
+    | '/app/$projectId/details'
+    | '/app/$projectId/document-upload'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/app/document-upload'
     | '/app'
-    | '/app/$projectName/document-upload'
+    | '/app/$projectId/details'
+    | '/app/$projectId/document-upload'
   id:
     | '__root__'
     | '/'
     | '/app'
     | '/app/document-upload'
     | '/app/'
-    | '/app/$projectName/document-upload'
+    | '/app/$projectId/details'
+    | '/app/$projectId/document-upload'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -121,11 +133,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDocumentUploadRouteImport
       parentRoute: typeof AppRoute
     }
-    '/app/$projectName/document-upload': {
-      id: '/app/$projectName/document-upload'
-      path: '/$projectName/document-upload'
-      fullPath: '/app/$projectName/document-upload'
-      preLoaderRoute: typeof AppProjectNameDocumentUploadRouteImport
+    '/app/$projectId/document-upload': {
+      id: '/app/$projectId/document-upload'
+      path: '/$projectId/document-upload'
+      fullPath: '/app/$projectId/document-upload'
+      preLoaderRoute: typeof AppProjectIdDocumentUploadRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/$projectId/details': {
+      id: '/app/$projectId/details'
+      path: '/$projectId/details'
+      fullPath: '/app/$projectId/details'
+      preLoaderRoute: typeof AppProjectIdDetailsRouteImport
       parentRoute: typeof AppRoute
     }
   }
@@ -134,13 +153,15 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppDocumentUploadRoute: typeof AppDocumentUploadRoute
   AppIndexRoute: typeof AppIndexRoute
-  AppProjectNameDocumentUploadRoute: typeof AppProjectNameDocumentUploadRoute
+  AppProjectIdDetailsRoute: typeof AppProjectIdDetailsRoute
+  AppProjectIdDocumentUploadRoute: typeof AppProjectIdDocumentUploadRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppDocumentUploadRoute: AppDocumentUploadRoute,
   AppIndexRoute: AppIndexRoute,
-  AppProjectNameDocumentUploadRoute: AppProjectNameDocumentUploadRoute,
+  AppProjectIdDetailsRoute: AppProjectIdDetailsRoute,
+  AppProjectIdDocumentUploadRoute: AppProjectIdDocumentUploadRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

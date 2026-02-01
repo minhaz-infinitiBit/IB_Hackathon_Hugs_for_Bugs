@@ -4,9 +4,9 @@ import { Link } from "@tanstack/react-router";
 import { Braces, Bug, Code, Cpu, FileText } from "lucide-react";
 
 const teamMembers = [
-	{ name: "Rupak", role: "Code Wizard", emoji: "🧙‍♂️" },
-	{ name: "Minhaz", role: "Neta The Leader", emoji: "🎯" },
-	{ name: "Saddat", role: "Stack Slayer", emoji: "⚔️" },
+	{ name: "Rupak", role: "রুপোকোনুজোন", emoji: "🧙‍♂️" },
+	{ name: "Minhaz", role: "নেতা", emoji: "🎯" },
+	{ name: "Saddat", role: "পাতি নেতা", emoji: "⚔️" },
 ];
 
 export function LandingPage() {
@@ -171,7 +171,7 @@ export function LandingPage() {
 											{member.name}
 										</h3>
 										<p className="text-gray-500 font-mono text-sm">
-											{"<"}
+											{"< "}
 											{member.role}
 											{" />"}
 										</p>

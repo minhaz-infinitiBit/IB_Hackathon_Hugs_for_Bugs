@@ -98,11 +98,15 @@ function Header({
 	);
 }
 
+import { useNavigate } from "@tanstack/react-router";
+
 function Body({
 	table,
 }: {
 	table: ReturnType<typeof useReactTable<ProjectResponse>>;
 }) {
+	const navigate = useNavigate();
+
 	return (
 		<TableBody>
 			{table.getRowModel().rows?.length ? (
@@ -110,7 +114,21 @@ function Body({
 					<TableRow
 						key={row.id}
 						data-state={row.getIsSelected() && "selected"}
-						className="border-gray-800 hover:bg-gray-900/50 transition-colors">
+						className="border-gray-800 hover:bg-gray-900/50 transition-colors cursor-pointer"
+						onClick={() => {
+							const project = row.original;
+							if (project.status === "finished_processing") {
+								navigate({
+									to: "/app/$projectId/details",
+									params: { projectId: String(project.id) },
+								});
+							} else {
+								navigate({
+									to: "/app/$projectId/document-upload",
+									params: { projectId: String(project.id) },
+								});
+							}
+						}}>
 						{row.getVisibleCells().map((cell) => (
 							<TableCell
 								key={cell.id}
