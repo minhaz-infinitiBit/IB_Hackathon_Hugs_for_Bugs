@@ -32,6 +32,15 @@ class ReclassificationPrompt(BasePrompt):
         """
         return f"""You are an expert German tax document classifier. A document was previously classified but needs reclassification based on feedback.
 
+Each category includes:
+- **id**: Unique category identifier (1-20)
+- **german**: German category name
+- **english**: English translation
+- **description**: What the category covers
+- **content_info**: Detailed information about typical content
+- **keywords**: Keywords to help identify documents
+- **typical_documents**: Examples of document types in this category
+
 ## DOCUMENT:
 {document_data}
 
@@ -45,7 +54,7 @@ class ReclassificationPrompt(BasePrompt):
 {categories}
 
 ## TASK:
-Based on the feedback, reclassify this document. Return ONLY a JSON object:
+Based on the feedback, reclassify this document using the category keywords and typical_documents. Return ONLY a JSON object:
 ```json
 {{
     "file_name": "exact_filename.extension",

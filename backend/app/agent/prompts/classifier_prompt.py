@@ -34,6 +34,16 @@ class ClassifierPrompt(BasePrompt):
 ## CATEGORIES (20 German Tax Document Categories):
 {categories}
 
+Each category includes:
+- **id**: Unique category identifier (1-20)
+- **german**: German category name
+- **english**: English translation
+- **description**: What the category covers
+- **content_info**: Detailed information about typical content
+- **keywords**: Keywords to help identify documents
+- **typical_documents**: Examples of document types in this category
+- **examples**: Concrete examples
+
 ## DOCUMENTS TO CLASSIFY:
 {documents_data}
 
@@ -45,7 +55,8 @@ class ClassifierPrompt(BasePrompt):
 1. **Analyze Each Document**: Read the summary, keywords, and document_type for each document carefully.
 
 2. **Match to Category**: Based on the content, determine which of the 20 categories best fits each document:
-   - Consider the German category names and their English translations
+   - Use the **keywords** in each category to match document content
+   - Consider **typical_documents** and **content_info** for detailed matching
    - Match document content to category descriptions and examples
    - If a document could fit multiple categories, choose the most specific one
    - Use category 20 ("Nicht Verwendbar" / "Not Applicable") only for truly irrelevant documents
@@ -54,11 +65,23 @@ class ClassifierPrompt(BasePrompt):
    - Tax questionnaires/forms → Category 1 (Fragebogen)
    - Official letters from Finanzamt, tax notices → Category 2 (Wichtige Korrespondenz)
    - Personal info forms (ESt 1A) → Category 3 (Mantelbogen)
+   - Special deductible expenses → Category 4 (Sonderausgaben)
+   - Medical/disability/funeral costs → Category 5 (Außergewöhnliche Belastung)
+   - Health/pension insurance → Category 6 (Vorsorge)
+   - Riester/Rürup pension → Category 7 (AV)
+   - Child-related documents → Category 8 (Kind)
+   - Business/trade income → Category 9 (Gewerbebetrieb)
+   - Freelance/self-employed income → Category 10 (Selbständige Arbeit)
    - Salary statements, wage documents → Category 11 (N / N-AUS / WA-ESt)
-   - Travel calendars, work logs → Category 17 (Kalender)
+   - Work-related expenses → Category 12 (Werbungskosten)
    - Dividend statements, bank documents → Category 13 (KAP)
-   - Foreign income/correspondence → Category 15 or 16 (AUS / Info Ausland)
+   - Rental income/expenses → Category 14 (V+V)
+   - Foreign income → Category 15 (AUS)
+   - Foreign info/treaties → Category 16 (Info Ausland)
+   - Travel calendars, work logs → Category 17 (Kalender)
    - Previous year tax documents → Category 18 (Vorjahr)
+   - Next year tax documents → Category 19 (Nachfolgendes Steuerjahr)
+   - Irrelevant documents → Category 20 (Nicht Verwendbar)
 
 4. **Output Format**: Return ONLY a valid JSON array with this exact structure:
 ```json

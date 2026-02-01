@@ -1,4 +1,5 @@
 from fastapi import APIRouter, UploadFile, HTTPException, Depends, File as FileUpload, Body
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from typing import List, Optional
 import shutil
@@ -268,4 +269,69 @@ async def get_project_classifications(
         "total_files": len(results),
         "files": results
     }
+
+
+@router.get("/projects/{project_id}/merged-pdf")
+async def get_merged_pdf(
+    project_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Get the merged PDF info for a project.
+    Returns metadata about the merged PDF including download URL.
+    """
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
     
+    if not project.merged_pdf_path:
+        return {
+            "project_id": project_id,
+            "status": project.status.value,
+            "merged_pdf_available": False,
+            "merged_pdf_path": None,
+            "message": "Merged PDF not available. Processing may not be complete."
+        }
+    
+    file_exists = os.path.exists(project.merged_pdf_path)
+    file_size = os.path.getsize(project.merged_pdf_path) if file_exists else 0
+    
+    return {
+        "project_id": project_id,
+        "status": project.status.value,
+        "merged_pdf_available": file_exists,
+        "merged_pdf_path": project.merged_pdf_path,
+        "merged_pdf_filename": os.path.basename(project.merged_pdf_path),
+        "file_size_bytes": file_size,
+        "download_url": f"/api/projects/{project_id}/merged-pdf/download"
+    }
+
+
+@router.get("/projects/{project_id}/merged-pdf/download")
+async def download_merged_pdf(
+    project_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Download the merged PDF file for a project.
+    """
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    if not project.merged_pdf_path:
+        raise HTTPException(
+            status_code=404, 
+            detail="Merged PDF not available. Processing may not be complete."
+        )
+    
+    if not os.path.exists(project.merged_pdf_path):
+        raise HTTPException(status_code=404, detail="Merged PDF file not found on disk")
+    
+    filename = os.path.basename(project.merged_pdf_path)
+    
+    return FileResponse(
+        path=project.merged_pdf_path,
+        filename=filename,
+        media_type="application/pdf"
+    )

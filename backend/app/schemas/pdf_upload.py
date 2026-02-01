@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 class PDFUploadResponse(BaseModel):
     filename: str
@@ -12,6 +13,7 @@ class ProjectResponse(BaseModel):
     id: int
     project_name: str
     status: str
+    merged_pdf_path: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

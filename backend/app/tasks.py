@@ -7,19 +7,23 @@ from app.core.database import get_db
 from app.models.files import Project, RunStatus, File
 from app.services.preprocess_document import DocumentPreprocessService
 from app.services.classification_service import ClassificationService
+from app.services.pdf_merger_service import PDFMergerService
 
 document_processing_service = DocumentPreprocessService()
 classification_service = ClassificationService()
+pdf_merger_service = PDFMergerService()
 redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
 
-def publish_status(project_id: int, status: str, message: str = "", progress: int = 0):
-    payload = json.dumps({
+def publish_status(project_id: int, status: str, message: str = "", progress: int = 0, extra_data: dict = None):
+    payload = {
         "project_id": project_id,
         "status": status,
         "message": message,
         "progress": progress
-    })
-    redis_client.publish(f"project:{project_id}:status", payload)
+    }
+    if extra_data:
+        payload.update(extra_data)
+    redis_client.publish(f"project:{project_id}:status", json.dumps(payload))
 
 
 def _update_file_with_preprocessing(db, file: File, result) -> dict:
@@ -201,15 +205,65 @@ def document_processing(project_id: int):
                 if file:
                     _update_file_with_classification(db, file, cls)
 
+        # Phase 4: Merge PDFs by category
+        publish_status(project_id, "processing", "Merging PDFs by category...", 80)
+        
+        # Get all classified files for merging
+        classified_files = db.query(File).filter(
+            File.project_id == project_id,
+            File.category_id.isnot(None)
+        ).all()
+        
+        merged_pdf_info = None
+        if classified_files:
+            merge_result = pdf_merger_service.merge_pdfs_by_category(
+                project_id=project_id,
+                files=classified_files,
+                project_name=project.project_name
+            )
+            
+            if merge_result.success:
+                # Save merged PDF path to project
+                project.merged_pdf_path = merge_result.merged_pdf_path
+                db.commit()
+                
+                merged_pdf_info = {
+                    "merged_pdf_path": merge_result.merged_pdf_path,
+                    "merged_pdf_filename": os.path.basename(merge_result.merged_pdf_path),
+                    "total_pages": merge_result.total_pages,
+                    "documents_merged": merge_result.documents_merged,
+                    "download_url": f"/api/projects/{project_id}/merged-pdf"
+                }
+                
+                publish_status(
+                    project_id,
+                    "processing",
+                    f"Merged {merge_result.documents_merged} documents into {merge_result.total_pages} pages",
+                    90
+                )
+            else:
+                publish_status(
+                    project_id,
+                    "processing",
+                    f"PDF merge warning: {merge_result.error_message}",
+                    90
+                )
+
         # Mark project as completed
         project.status = RunStatus.finished_processing
         db.commit()
+        
+        # Build completion message with merged PDF info
+        completion_extra = {}
+        if merged_pdf_info:
+            completion_extra["merged_pdf"] = merged_pdf_info
         
         publish_status(
             project_id, 
             "completed", 
             f"Processing complete. Processed {total} files, classified {classification_result.documents_classified} documents.", 
-            100
+            100,
+            extra_data=completion_extra
         )
 
     except Exception as e:

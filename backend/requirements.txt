@@ -31,6 +31,7 @@ typer
 rich
 watchfiles
 websockets
+pypdf
 # Maintain some specific versions if needed, but otherwise let solver work
 aiohappyeyeballs
 aiosignal
