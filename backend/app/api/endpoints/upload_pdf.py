@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 import shutil
 import os
+from urllib.parse import quote
 import json
 
 from app.core.database import get_db
@@ -658,7 +659,7 @@ async def get_project_grouped_by_category(
                 "file_id": file.id,
                 "file_name": os.path.basename(file.file_path),
                 "file_path": file.file_path,
-                "preview_url": f"/files/preview?file_path={file.file_path}",
+                "preview_url": f"/files/preview?file_path={quote(file.file_path)}",
                 "confidence": file.classification_confidence,
                 "reasoning": file.classification_reasoning
             })
