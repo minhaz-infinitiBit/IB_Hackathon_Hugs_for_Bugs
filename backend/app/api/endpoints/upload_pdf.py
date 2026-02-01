@@ -284,6 +284,25 @@ async def get_project_classifications(
         "files": results
     }
 
+@router.get("/projects/{project_id}/merged-pdf/download")
+async def download_merged_pdf(
+    project_id: int,
+    db: Session = Depends(get_db)
+):
+    """Download the merged PDF file for a project."""
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    if not project.merged_pdf_path or not os.path.exists(project.merged_pdf_path):
+        raise HTTPException(status_code=404, detail="Merged PDF not found")
+    
+    return FileResponse(
+        path=project.merged_pdf_path,
+        media_type="application/pdf",
+        filename=os.path.basename(project.merged_pdf_path)
+    )
+ 
 
 @router.get("/projects/{project_id}/merged-pdf")
 async def get_merged_pdf(
