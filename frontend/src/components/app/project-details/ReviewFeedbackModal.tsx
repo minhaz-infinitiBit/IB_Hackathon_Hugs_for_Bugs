@@ -36,13 +36,16 @@ export function ReviewFeedbackModal({
 				},
 			});
 
-			// Notify parent that processing started
-			onSubmitStart();
+			// Close modal and show success immediately after API responds
 			setFeedback("");
 			onClose();
-			toast.info("Reclassification started...", {
-				description: "Processing your feedback",
+			toast.success("Feedback submitted successfully!", {
+				description:
+					"Documents are being reclassified. Please refresh to see updates.",
 			});
+
+			// Trigger background refresh (non-blocking)
+			onSubmitStart();
 		} catch (error) {
 			toast.error("Failed to submit feedback", {
 				description: String(error),
