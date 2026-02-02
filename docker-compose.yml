@@ -40,7 +40,6 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: hugs_celery
     restart: unless-stopped
     command: celery -A app.celery_worker.celery_app worker --loglevel=info --concurrency=2
     environment:
