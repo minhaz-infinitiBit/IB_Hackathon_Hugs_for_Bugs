@@ -1,0 +1,136 @@
+services:
+  # ===================
+  # Backend API Server
+  # ===================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hugs_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:////app/db/sql_app.db
+      - REDIS_URL=redis://redis:6379/0
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+    env_file:
+      - ./backend/.env
+    volumes:
+      - backend_data:/app/app/data
+      - backend_output:/app/output
+      - backend_db:/app/db
+      - ./backend/app:/app/app  # For development hot-reload
+    depends_on:
+      - redis
+      - qdrant
+    networks:
+      - hugs_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===================
+  # Celery Worker
+  # ===================
+  celery:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hugs_celery
+    restart: unless-stopped
+    command: celery -A app.celery_worker.celery_app worker --loglevel=info --concurrency=2
+    environment:
+      - DATABASE_URL=sqlite:////app/db/sql_app.db
+      - REDIS_URL=redis://redis:6379/0
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+    env_file:
+      - ./backend/.env
+    volumes:
+      - backend_data:/app/app/data
+      - backend_output:/app/output
+      - backend_db:/app/db
+    depends_on:
+      - redis
+      - qdrant
+      - backend
+    networks:
+      - hugs_network
+
+  # ===================
+  # Redis (Message Broker & Cache)
+  # ===================
+  redis:
+    image: redis:7-alpine
+    container_name: hugs_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - hugs_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===================
+  # Qdrant (Vector Database)
+  # ===================
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: hugs_qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    networks:
+      - hugs_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===================
+  # Frontend Server
+  # ===================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hugs_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - hugs_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  hugs_network:
+    driver: bridge
+
+volumes:
+  backend_data:
+  backend_output:
+  backend_db:
+  redis_data:
+  qdrant_data:

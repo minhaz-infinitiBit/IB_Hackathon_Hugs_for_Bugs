@@ -284,16 +284,31 @@ async def get_project_classifications(
         "files": results
     }
 
+@router.get("/projects/{project_id}/merged-pdf/download")
+async def download_merged_pdf(
+    project_id: int,
+    db: Session = Depends(get_db)
+):
+    """Download the merged PDF file for a project."""
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    if not project.merged_pdf_path or not os.path.exists(project.merged_pdf_path):
+        raise HTTPException(status_code=404, detail="Merged PDF not found")
+    
+    return FileResponse(
+        path=project.merged_pdf_path,
+        media_type="application/pdf",
+        filename=os.path.basename(project.merged_pdf_path)
+    )
+ 
 
 @router.get("/projects/{project_id}/merged-pdf")
 async def get_merged_pdf(
     project_id: int,
     db: Session = Depends(get_db)
 ):
-    """
-    Get the merged PDF info for a project.
-    Returns metadata about the merged PDF including download URL.
-    """
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -316,40 +331,46 @@ async def get_merged_pdf(
         "merged_pdf_available": file_exists,
         "merged_pdf_path": project.merged_pdf_path,
         "merged_pdf_filename": os.path.basename(project.merged_pdf_path),
-        "preview_url": f"/files/preview?file_path={project.merged_pdf_path}",
+        "preview_url": f"/files/preview?file_path={quote(project.merged_pdf_path)}",
         "file_size_bytes": file_size,
         "download_url": f"/api/projects/{project_id}/merged-pdf/download"
     }
 
 
-@router.get("/projects/{project_id}/merged-pdf/download")
-async def download_merged_pdf(
-    project_id: int,
-    db: Session = Depends(get_db)
-):
-    """
-    Download the merged PDF file for a project.
-    """
-    project = db.query(Project).filter(Project.id == project_id).first()
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-    
-    if not project.merged_pdf_path:
-        raise HTTPException(
-            status_code=404, 
-            detail="Merged PDF not available. Processing may not be complete."
-        )
-    
-    if not os.path.exists(project.merged_pdf_path):
-        raise HTTPException(status_code=404, detail="Merged PDF file not found on disk")
-    
-    filename = os.path.basename(project.merged_pdf_path)
-    
-    return FileResponse(
-        path=project.merged_pdf_path,
-        filename=filename,
-        media_type="application/pdf"
-    )
+@router.get("/preview")
+async def preview_file(file_path: str):
+    try:
+        abs_file_path = os.path.realpath(file_path)
+        
+        current_file = os.path.realpath(__file__)
+        backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(current_file))))
+        
+        uploads_dir = os.path.realpath(os.path.join(backend_dir, "app", "data", "uploads"))
+        output_dir = os.path.realpath(os.path.join(backend_dir, "output"))
+        merged_dir = os.path.realpath(os.path.join(backend_dir, "app", "data", "merged"))  # ← add this
+
+        def is_subpath(child, parent):
+            try:
+                return os.path.commonpath([child, parent]) == parent
+            except ValueError:
+                return False
+
+        if is_subpath(abs_file_path, uploads_dir):
+            rel_path = os.path.relpath(abs_file_path, uploads_dir)
+            return RedirectResponse(url=f"/static/uploads/{rel_path}")
+        elif is_subpath(abs_file_path, merged_dir):          # ← add this
+            rel_path = os.path.relpath(abs_file_path, merged_dir)
+            return RedirectResponse(url=f"/static/merged/{rel_path}")
+        elif is_subpath(abs_file_path, output_dir):
+            rel_path = os.path.relpath(abs_file_path, output_dir)
+            return RedirectResponse(url=f"/static/output/{rel_path}")
+        else:
+            raise HTTPException(status_code=403, detail=f"Access restricted.")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to redirect to file: {str(e)}")
 
 
 # ==================== HUMAN-IN-THE-LOOP ENDPOINTS ====================
