@@ -3,7 +3,7 @@ import { defineConfig } from "orval";
 export default defineConfig({
 	api: {
 		input: {
-			target: "https://ad9439650106.ngrok-free.app/openapi.json",
+			target: "http://backend:8000/openapi.json",
 		},
 		output: {
 			mode: "tags-split",

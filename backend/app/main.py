@@ -4,7 +4,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+# Import database and models to create tables on startup
+from app.core.database import Base, engine
+from app.models.files import Project, File  # noqa: F401
+
 app = FastAPI()
+
+# Create database tables on startup
+Base.metadata.create_all(bind=engine)
 
 # Ensure data directories exist
 os.makedirs("app/data/uploads", exist_ok=True)

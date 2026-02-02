@@ -1,6 +1,7 @@
 import redis
 import json
 import os
+from urllib.parse import urlparse
 from pathlib import Path
 from .celery_worker import celery_app
 from app.core.database import get_db
@@ -14,7 +15,16 @@ document_processing_service = DocumentPreprocessService()
 classification_service = ClassificationService()
 pdf_merger_service = PDFMergerService()
 memory_manager = get_memory_manager()
-redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+
+# Parse Redis URL from environment
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+parsed_redis = urlparse(REDIS_URL)
+redis_client = redis.Redis(
+    host=parsed_redis.hostname or 'localhost',
+    port=parsed_redis.port or 6379,
+    db=int(parsed_redis.path.lstrip('/') or 0),
+    decode_responses=True
+)
 
 def publish_status(project_id: int, status: str, message: str = "", progress: int = 0, extra_data: dict = None):
     payload = {
